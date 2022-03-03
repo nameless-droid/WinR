@@ -7,6 +7,7 @@
     <UseWPF>true</UseWPF>
     <_SuppressWpfTrimError>true</_SuppressWpfTrimError>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
