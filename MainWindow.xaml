@@ -14,19 +14,19 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         mc:Ignorable="d"
-        Title="MainWindow" x:Name="wnd" Height="221" Width="418" Loaded="Window_Loaded" WindowStyle="None" ResizeMode="CanResize">
+        Title="MainWindow" x:Name="wnd" Height="221" Width="418" Loaded="Window_Loaded" WindowStyle="None" ResizeMode="CanResize" Activated="Window_Activated" PreviewKeyDown="Window_PreviewKeyDown" PreviewMouseDown="Window_PreviewMouseDown">
     <Window.Resources>
         <!--For large content, better go for a Virtualizing StackPanel-->
         <ItemsPanelTemplate x:Key="ItemsTemplate">
             <VirtualizingStackPanel/>
         </ItemsPanelTemplate>
-        
+
     </Window.Resources>
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="20"></WindowChrome>
     </WindowChrome.WindowChrome>
-    <Grid>
-        
+    <Grid x:Name="mainGrid">
+
         <StackPanel WindowChrome.IsHitTestVisibleInChrome="True" Orientation="Horizontal" FlowDirection="RightToLeft" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="100" ClipToBounds="True" SnapsToDevicePixels="True" UseLayoutRounding="True" ScrollViewer.VerticalScrollBarVisibility="Disabled">
             <Button Click="CloseClick_HideWindow" FocusVisualStyle="{x:Null}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="20" Height="20" Padding="0">
                 <materialDesign:PackIcon Kind="CloseBox" Width="10" Height="10" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -50,19 +50,19 @@
         <!--<materialDesign:Card Visibility="{Binding ElementName=test, Path=Visibility}" Padding="3" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">-->
         <materialDesign:Card x:Name="debugCard" Visibility="Hidden" Padding="3" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
             <Grid >
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
-            </Grid.RowDefinitions>
-            <Label Grid.Row="0" Content="Width:"></Label>
-            <Label Grid.Row="0" Grid.Column="1" Content="{Binding ElementName=wnd, Path=ActualWidth}"></Label>
-            <Label Grid.Row="1" Content="Height:"></Label>
-            <Label Grid.Row="1" Grid.Column="1" Content="{Binding ElementName=wnd, Path=ActualHeight}"></Label>
-        </Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Content="Width:"></Label>
+                <Label Grid.Row="0" Grid.Column="1" Content="{Binding ElementName=wnd, Path=ActualWidth}"></Label>
+                <Label Grid.Row="1" Content="Height:"></Label>
+                <Label Grid.Row="1" Grid.Column="1" Content="{Binding ElementName=wnd, Path=ActualHeight}"></Label>
+            </Grid>
         </materialDesign:Card>
         <StackPanel Orientation="Horizontal" 
                 VerticalAlignment="Top"
@@ -75,6 +75,12 @@
             Padding="4 3" 
             MinWidth="200"
                 KeyDown="FilteredComboBox1_KeyDown"/>
+        </StackPanel>
+        <StackPanel Margin="10,35,327,78">
+        <Label Content="{Binding ElementName=FilteredComboBox1, Path=Focusable}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <Label Content="{Binding ElementName=FilteredComboBox1, Path=IsFocused}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <Label Content="{Binding ElementName=FilteredComboBox1, Path=IsKeyboardFocused}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <Label Content="{Binding ElementName=FilteredComboBox1, Path=IsKeyboardFocusWithin}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </StackPanel>
     </Grid>
 </Window>

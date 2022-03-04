@@ -221,12 +221,12 @@ namespace WinR
         /// <param name="e">A KeyBoardFocusChangedEventArgs.</param>
         protected override void OnPreviewLostKeyboardFocus(KeyboardFocusChangedEventArgs e)
         {
-            this.ClearFilter();
-            int temp = this.SelectedIndex;
-            this.SelectedIndex = -1;
-            this.Text = string.Empty;
-            this.SelectedIndex = temp;
-            base.OnPreviewLostKeyboardFocus(e);
+            //this.ClearFilter();
+            //int temp = this.SelectedIndex;
+            //this.SelectedIndex = -1;
+            //this.Text = string.Empty;
+            //this.SelectedIndex = temp;
+            //base.OnPreviewLostKeyboardFocus(e);
         }
 
         ////
@@ -275,6 +275,45 @@ namespace WinR
 
             // Case insensitive search
             return value.ToString().ToLower().Contains(this.Text.ToLower());
+        }
+
+
+
+        //protected override void OnApplyTemplate()
+        //{
+        //    var myTextBox = GetTemplateChild("PART_EditableTextBox") as TextBox;
+        //    if (myTextBox != null)
+        //    {
+        //        myTextBox.SelectionChanged += OnDropSelectionChanged;
+        //    }
+        //}
+
+        //private void OnDropSelectionChanged(object sender, RoutedEventArgs e)
+        //{
+        //    var textbox = sender as TextBox;
+        //    if (textbox != null)
+        //    {
+        //        //you can write your own logic.
+        //        _carentIndex = textbox.CaretIndex;
+        //    }
+        //}
+
+        TextBox editableTextBox = new TextBox();
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+            var myTextBox = GetTemplateChild("PART_EditableTextBox") as TextBox;
+            if (myTextBox != null)
+            {
+                this.editableTextBox = myTextBox;
+            }
+        }
+
+        public void SetCaret(int position)
+        {
+            this.editableTextBox.SelectionStart = position;
+            this.editableTextBox.SelectionLength = 0;
         }
     }
 }

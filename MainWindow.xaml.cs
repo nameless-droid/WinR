@@ -17,6 +17,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+
+using System.Threading;
+using System.Windows.Threading;
+
+
 using Path = System.IO.Path;
 using Forms = System.Windows.Forms;
 using Drawing = System.Drawing;
@@ -34,28 +39,47 @@ namespace WinR
             //test.Visibility = Visibility.Hidden;
         }
 
-        private int taskbarHeight => Forms.Screen.PrimaryScreen.Bounds.Height - Forms.Screen.PrimaryScreen.WorkingArea.Height;
-        //private Drawing.Point getCurrentPos => new Drawing.Point((int)Left, (int)Top);
-        private Forms.Screen getCurrentScreen => Forms.Screen.FromPoint(new Drawing.Point((int)Left, (int)Top));
-        private int getCurrentScreenLeft => getCurrentScreen.Bounds.Left;
-        private int getCurrentScreenY => getCurrentScreen.Bounds.Y;
-        //private int currentScreenTaskbarHeight => Forms.Screen.FromPoint(getCurrentPos).Bounds.Height - Forms.Screen.PrimaryScreen.WorkingArea.Height;
 
         //public Button test = new Button();
 
+        //public 
+
+        public void WorkThreadFunction()
+        {
+            try
+            {
+                // do any background work
+
+            }
+            catch (Exception ex)
+            {
+                // log errors
+            }
+        }
+
+        private int taskbarHeight => Forms.Screen.PrimaryScreen.Bounds.Height - Forms.Screen.PrimaryScreen.WorkingArea.Height;
+        private Forms.Screen getScreenWithMouse => Forms.Screen.FromPoint(cursorPos);
+        private Drawing.Point cursorPos
+        {
+            get
+            {
+                Drawing.Point point;
+                GetCursorPos(out point);
+                return point;
+            }
+        }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            #region position
 
-            //var toolbarHeight = SystemParameters.PrimaryScreenHeight - SystemParameters.FullPrimaryScreenHeight - SystemParameters.WindowCaptionHeight;
 
-            //private int WindowsTaskBarHeight => Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height;
 
-            this.Left = getCurrentScreenLeft + 10;
-            this.Top = getCurrentScreen.Bounds.Height - taskbarHeight - this.ActualHeight - 10;
+            App.Current.MainWindow.Left = getScreenWithMouse.Bounds.Left + 10;
+            App.Current.MainWindow.Top = getScreenWithMouse.Bounds.Height - taskbarHeight - App.Current.MainWindow.ActualHeight - 10;
+            //
 
-                #endregion
 
+            //SetWndPosBasedOnWhichScreenCursorIsOn();
             //DataSet myDataSet;
             //myDataSet
 
@@ -104,7 +128,8 @@ namespace WinR
             FilteredComboBox1.IsTextSearchEnabled = false;
             FilteredComboBox1.ItemsSource = names;
 
-            Hook();
+            //Hook();
+            //HookThread();
         }
 
         private void Window_Loaded_1(object sender, RoutedEventArgs e)
@@ -112,167 +137,10 @@ namespace WinR
 
         }
 
-        public async void Hook()
-        {
-            WinEventDelegate dele = new WinEventDelegate(WinEventProc);
-            IntPtr m_hhook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
-            //string window = GetActiveWindowTitle();
-            IntPtr intPtr = GetForegroundWindow();
-            string windowClass = GetActiveWindowClass();
-            string windowTitle = GetActiveWindowTitle();
-            //Console.WriteLine(window);
-            while (true)
-            {
-                //if (window != GetActiveWindowTitle())
-                //{
-                //    window = GetActiveWindowTitle();
-                //    Console.WriteLine(window);
-                //    Debug.WriteLine(window);
-                //}
+        //public async void Hook()
 
 
-                if (windowClass == "#32770" && (windowTitle.Equals("Ausführen") || windowTitle.Equals("Run")))
-                {
-                    windowClass = GetActiveWindowClass();
-                    //this.Show();
-                    //ShowWindow(new WindowInteropHelper(this).Handle, 5);
-                    //SendMessage(intPtr, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
-                    //SendMessage(intPtr, WM_CLOSE, 0, IntPtr.Zero);
-                    //await Task.Delay(10);
-                    ShowWindow(new WindowInteropHelper(this).Handle, 9);
-                    SetWindowPos(new WindowInteropHelper(this).Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP.SHOWWINDOW | SWP.NOMOVE | SWP.NOSIZE);
-                    SetWindowPos(new WindowInteropHelper(this).Handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP.SHOWWINDOW | SWP.NOMOVE | SWP.NOSIZE);
-                    this.Show();
-                    this.Activate();
-                }
 
-                if (windowClass != GetActiveWindowClass())
-                {
-                    windowClass = GetActiveWindowClass();
-                    intPtr = GetForegroundWindow();
-                    windowTitle = GetActiveWindowTitle();
-                    Console.WriteLine(windowClass);
-                    Debug.WriteLine(windowClass);
-                }
-                await Task.Delay(1);
-            }
-        }
-
-        private static string GetActiveWindowClass()
-        {
-            const int nChars = 256;
-            IntPtr handle = IntPtr.Zero;
-            StringBuilder Buff = new StringBuilder(nChars);
-            handle = GetForegroundWindow();
-
-            if (GetClassName(handle, Buff, nChars) > 0)
-            {
-                return Buff.ToString();
-            }
-            return "";
-        }
-
-        delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
-
-        private static string GetActiveWindowTitle()
-        {
-            const int nChars = 256;
-            IntPtr handle = IntPtr.Zero;
-            StringBuilder Buff = new StringBuilder(nChars);
-            handle = GetForegroundWindow();
-
-            if (GetWindowText(handle, Buff, nChars) > 0)
-            {
-                return Buff.ToString();
-            }
-            return "";
-        }
-
-        public static void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
-        {
-            Console.WriteLine(GetActiveWindowTitle());
-        }
-
-        #region imports
-        [DllImport("user32.dll")]
-        static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
-
-        private const uint WINEVENT_OUTOFCONTEXT = 0;
-        private const uint EVENT_SYSTEM_FOREGROUND = 3;
-
-        [DllImport("user32.dll")]
-        static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll")]
-        static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
-
-
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
-        #endregion
-
-        [DllImport("user32.dll")]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, int uFlags);
-
-        static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
-        static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
-        static readonly IntPtr HWND_TOP = new IntPtr(0);
-        static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
-
-        /// <summary>
-        /// Window handles (HWND) used for hWndInsertAfter
-        /// </summary>
-        public static class HWND
-        {
-            public static IntPtr
-            NoTopMost = new IntPtr(-2),
-            TopMost = new IntPtr(-1),
-            Top = new IntPtr(0),
-            Bottom = new IntPtr(1);
-        }
-
-        /// <summary>
-        /// SetWindowPos Flags
-        /// </summary>
-        public static class SWP
-        {
-            public static readonly int
-            NOSIZE = 0x0001,
-            NOMOVE = 0x0002,
-            NOZORDER = 0x0004,
-            NOREDRAW = 0x0008,
-            NOACTIVATE = 0x0010,
-            DRAWFRAME = 0x0020,
-            FRAMECHANGED = 0x0020,
-            SHOWWINDOW = 0x0040,
-            HIDEWINDOW = 0x0080,
-            NOCOPYBITS = 0x0100,
-            NOOWNERZORDER = 0x0200,
-            NOREPOSITION = 0x0200,
-            NOSENDCHANGING = 0x0400,
-            DEFERERASE = 0x2000,
-            ASYNCWINDOWPOS = 0x4000;
-        }
-
-        const UInt32 WM_CLOSE = 0x0010;
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, nuint wParam, StringBuilder lParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, nuint wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
-
-        //[DllImport("user32.dll", CharSet = CharSet.Auto)]
-        //public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, nuint wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, nuint wParam, ref nint lParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, nuint wParam, nint lParam);
 
         private void FilteredComboBox1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -484,10 +352,10 @@ namespace WinR
                 tmp = 0;
             }
 
-           float max = results.Max();
+            float max = results.Max();
 
-           return max;
-           //return (float)max / str.Length;
+            return max;
+            //return (float)max / str.Length;
         }
 
         public float dd2ee(string s, string s2)
@@ -504,5 +372,123 @@ namespace WinR
             return (float)result / s2.Length;
         }
 
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        //static extern bool GetCursorPos(out POINT lpPoint);
+        static extern bool GetCursorPos(out Drawing.Point lpPoint);
+
+
+        //static extern Drawing.Point GetCursorPos();
+        // DON'T use System.Drawing.Point, the order of the fields in System.Drawing.Point isn't guaranteed to stay the same.
+
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            foreach (FrameworkElement item in mainGrid.Children)
+            {
+                if (item is not FilteredComboBox)
+                    item.Focusable = false;
+            }
+            //FilteredComboBox1.Focusable = true;
+
+            FilteredComboBox1.Focusable = true;
+            FilteredComboBox1.Focus();
+
+            FilteredComboBox1.Focus();
+            Keyboard.Focus(FilteredComboBox1 as ComboBox);
+
+            Dispatcher.BeginInvoke(DispatcherPriority.Input,
+            new Action(delegate ()
+            {
+                FilteredComboBox1.Focus();         // Set Logical Focus
+                Keyboard.Focus(FilteredComboBox1); // Set Keyboard Focus
+            }));
+
+        }
+
+        private async void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!FilteredComboBox1.IsKeyboardFocusWithin)
+            {
+                //e.Handled = true;
+                //FilteredComboBox1.Focus();
+                //Keyboard.Focus(FilteredComboBox1 as ComboBox);
+                ////Keyboard.Focus(FilteredComboBox1);
+                ///
+
+                Dispatcher.BeginInvoke(DispatcherPriority.Input,
+                new Action(delegate ()
+                {
+                    FilteredComboBox1.Focus();         // Set Logical Focus
+                    Keyboard.Focus(FilteredComboBox1); // Set Keyboard Focus
+                }));
+
+                await Task.Delay(100);
+
+                //char ch = (char)e.Key;
+                var ch = (char)KeyInterop.VirtualKeyFromKey(e.Key);
+                if (!char.IsLetter(ch)) {
+                    //FilteredComboBox1.Text += e.Key;
+                    return; 
+                }
+
+                bool upper = false;
+                if (Keyboard.IsKeyToggled(Key.Capital) || Keyboard.IsKeyToggled(Key.CapsLock))
+                {
+                    upper = !upper;
+                }
+                if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+                {
+                    upper = !upper;
+                }
+                if (!upper)
+                {
+                    ch = char.ToLower(ch);
+                }
+
+                FilteredComboBox1.Text += ch;
+                //FilteredComboBox1.SelectedIndex = -1;
+                //FilteredComboBox1.CaretIndex = FilteredComboBox1.inde;
+
+                //var myTextBox = GetTemplateChild("PART_EditableTextBox") as TextBox;
+                //if (myTextBox != null)
+                //{
+                //    this.FilteredComboBox1 = myTextBox;
+                //}
+
+                FilteredComboBox1.SetCaret(FilteredComboBox1.Text.Length);
+
+                //var textbox = sender as TextBox;
+                //if (textbox != null)
+                //{
+                //    //you can write your own logic.
+                //    textbox.CaretIndex = textbox.Text.Length;
+                //}
+            }
+
+
+        }
+
+
+
+        private void Window_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!FilteredComboBox1.IsKeyboardFocusWithin)
+            {
+                //e.Handled = true;
+                //FilteredComboBox1.Focus();
+                //Keyboard.Focus(FilteredComboBox1 as ComboBox);
+                ////Keyboard.Focus(FilteredComboBox1);
+                ///
+
+                Dispatcher.BeginInvoke(DispatcherPriority.Input,
+                new Action(delegate ()
+                {
+                    FilteredComboBox1.Focus();         // Set Logical Focus
+                    Keyboard.Focus(FilteredComboBox1); // Set Keyboard Focus
+                }));
+            }
+        }
     }
 }
