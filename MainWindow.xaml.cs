@@ -33,6 +33,21 @@ namespace WinR
     /// </summary>
     public partial class MainWindow : Window
     {
+        //public static DependencyProperty WndActiveProperty = DependencyProperty.Register("WndActive", typeof(bool), typeof(Button), new PropertyMetadata(""));
+        //public bool WndActive
+        //{
+        //    get { return (bool)GetValue(WndActiveProperty); }
+        //    set { SetValue(WndActiveProperty, value); }
+        //}
+
+        //bool wndactive = false;
+        ////public static DependencyProperty WndActiveProperty = DependencyProperty.Register("WndActive", typeof(bool), typeof(Button), new PropertyMetadata(""));
+        //public bool WndActive
+        //{
+        //    get { return wndactive; }
+        //    set { wndactive = value; }
+        //}
+
         public MainWindow()
         {
             InitializeComponent();
@@ -74,8 +89,10 @@ namespace WinR
 
 
 
-            App.Current.MainWindow.Left = getScreenWithMouse.Bounds.Left + 10;
-            App.Current.MainWindow.Top = getScreenWithMouse.Bounds.Height - taskbarHeight - App.Current.MainWindow.ActualHeight - 10;
+            //App.Current.MainWindow.Left = getScreenWithMouse.Bounds.Left + 10;
+            //App.Current.MainWindow.Top = getScreenWithMouse.Bounds.Height - taskbarHeight - App.Current.MainWindow.ActualHeight - 10;
+            Left = 8;
+            Top = 833;
             //
 
 
@@ -88,7 +105,24 @@ namespace WinR
             {
                 if (args.Length > 1 && args[1] == "-debug")
                 {
-                    debugCard.Visibility = Visibility.Visible;
+                    //debugCard.Visibility = Visibility.Visible;
+                    foreach (FrameworkElement item in mainGrid.Children)
+                    {
+                        if (item.Name.ToLower().Contains("debug"))
+                        {
+                            item.Visibility = Visibility.Visible;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (FrameworkElement item in mainGrid.Children)
+                    {
+                        if (item.Name.ToLower().Contains("debug"))
+                        {
+                            item.Visibility = Visibility.Collapsed;
+                        }
+                    }
                 }
             }
 
@@ -144,6 +178,8 @@ namespace WinR
 
         private void FilteredComboBox1_KeyDown(object sender, KeyEventArgs e)
         {
+            ((ComboBox)sender).IsDropDownOpen = true;   
+            return;
             string userDir = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
             string s = ((FilteredComboBox)sender).Text;
             //if (string.IsNullOrEmpty(s))
@@ -188,7 +224,7 @@ namespace WinR
                     //psi.RedirectStandardError = true;
                     //psi.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
                     psi.FileName = "explorer";
-                    psi.Arguments = s;
+                    psi.Arguments = "\""+s+"\"" ;
                     Process.Start(psi);
                 }
                 //else if (Directory.Exists(Path.Combine(userDir, s)))
@@ -405,6 +441,12 @@ namespace WinR
                 Keyboard.Focus(FilteredComboBox1); // Set Keyboard Focus
             }));
 
+            //WndActive = true;
+        }
+
+        private void Window_Deactivated(object sender, EventArgs e)
+        {
+            //WndActive = false;
         }
 
         private async void Window_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -457,7 +499,7 @@ namespace WinR
                 //    this.FilteredComboBox1 = myTextBox;
                 //}
 
-                FilteredComboBox1.SetCaret(FilteredComboBox1.Text.Length);
+                ///FilteredComboBox1.SetCaret(FilteredComboBox1.Text.Length);
 
                 //var textbox = sender as TextBox;
                 //if (textbox != null)
@@ -490,5 +532,7 @@ namespace WinR
                 }));
             }
         }
+
+
     }
 }

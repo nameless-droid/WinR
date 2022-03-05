@@ -148,8 +148,8 @@ namespace WinR
                             //SetWndPosBasedOnWhichScreenCursorIsOn();
                             SetWndPosRelativeBasedOnWhichScreenCursorIsOn();
 
-                            ShowWindow(intPtr, 0);
-                            SetWindowPos(intPtr, HWND_BOTTOM, (int)App.Current.MainWindow.Left, (int)App.Current.MainWindow.Top, 0, 0, SWP.HIDEWINDOW | SWP.NOACTIVATE);
+                            //ShowWindow(intPtr, 0);
+                            //SetWindowPos(intPtr, HWND_BOTTOM, (int)App.Current.MainWindow.Left, (int)App.Current.MainWindow.Top, 0, 0, SWP.HIDEWINDOW | SWP.NOACTIVATE);
 
                             //SendMessage(intPtr, WM_CLOSE, 0, IntPtr.Zero);
                             //await Task.Delay(10);
@@ -160,7 +160,7 @@ namespace WinR
                             App.Current.MainWindow.Activate();
                             
 
-                            SendMessage(intPtr, WM_CLOSE, 0, IntPtr.Zero);
+                            //SendMessage(intPtr, WM_CLOSE, 0, IntPtr.Zero);
                         }
                     ));
 

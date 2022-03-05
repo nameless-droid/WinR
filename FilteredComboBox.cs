@@ -35,7 +35,7 @@ namespace WinR
                 "MinimumSearchLength",
                 typeof(int),
                 typeof(FilteredComboBox),
-                new UIPropertyMetadata(3));
+                new UIPropertyMetadata(1));
 
         ////
         // Private Fields
@@ -76,7 +76,7 @@ namespace WinR
         /// <value>The minimum length of the search string that triggers filtering.</value>
         [Description("Length of the search string that triggers filtering.")]
         [Category("Filtered ComboBox")]
-        [DefaultValue(3)]
+        [DefaultValue(1)]
         public int MinimumSearchLength
         {
             [System.Diagnostics.DebuggerStepThrough]
@@ -182,7 +182,11 @@ namespace WinR
         /// </remarks>
         protected override void OnKeyUp(KeyEventArgs e)
         {
-            if (e.Key == Key.Up || e.Key == Key.Down)
+            if (e.Key == Key.Back)
+            {
+                ;
+            }
+            else if (e.Key == Key.Up || e.Key == Key.Down)
             {
                 // Navigation keys are ignored
             }
@@ -204,7 +208,7 @@ namespace WinR
                         this.IsDropDownOpen = true;
 
                         // Unselect
-                        this.EditableTextBox.SelectionStart = int.MaxValue;
+                        //this.EditableTextBox.SelectionStart = int.MaxValue;
                     }
                 }
 

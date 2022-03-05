@@ -1,0 +1,6 @@
+timestamp command executed file/with status
+
+2022-05-05-20:20 cmd cmd cmd success
+2022-05-05-20:20 docs Documents cmd success
+
+%USERPROFILE%\AppData\Local\Microsoft\VisualStudio\
