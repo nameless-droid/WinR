@@ -178,13 +178,88 @@ namespace WinR
 
         private void FilteredComboBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            ((ComboBox)sender).IsDropDownOpen = true;   
-            return;
+
+
+
+
+
+
+
+            //((ComboBox)sender).IsDropDownOpen = true;   
+            //return;
             string userDir = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
             string s = ((FilteredComboBox)sender).Text;
             //if (string.IsNullOrEmpty(s))
             if (e.Key == Key.Enter)
             {
+                var fileName = "command-history.txt";
+                if (!File.Exists(fileName))
+                {
+                    File.Create(fileName);
+                }
+                StreamWriter sw = File.AppendText(fileName);
+
+                bool found = false;
+
+                //if (s.StartsWith("<"))
+                //{
+                    if (s.StartsWith("< "))
+                    {
+                        s = s.Remove(0, 2);
+                    }
+                    else if(s.StartsWith("<"))
+                    {
+                        s = s.Remove(0, 1);
+                    }
+
+                    string[] lines = System.IO.File.ReadAllLines(@"custom.txt");
+
+                    foreach (var item in lines)
+                    {
+
+                        string[] str = item.Split(";");
+                        //if (str[0].Equals(s))
+                        s = str[1];
+                        if (s.Equals(str[0]))
+                        {
+                            //Process.Start(str[1]);
+
+                            ProcessStartInfo psi = new ProcessStartInfo();
+                            psi.CreateNoWindow = true;
+                            psi.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
+                            psi.FileName = "cmd";
+                            psi.Arguments = "/c start " + s;
+                            sw.WriteLine(s);
+
+                            //psi.FileName = "powershell";
+                            //psi.Arguments = "start " + s;
+                            //psi.UseShellExecute = true;
+                            //psi.ErrorDialog = true;
+                            //psi.RedirectStandardError = true;
+                            //psi.FileName = s;
+                            //psi.Arguments = s;
+
+                            Process.Start(psi);
+
+                            //return;
+                            found = true;
+                            break;
+                        }
+                    }
+
+
+
+                    //s.Replace("< ", "");
+                //}
+
+
+                if (found == true)
+                {
+                    return;
+                }
+
+                //FilteredComboBox1.Style = ;
+
                 /*
                 float d = dd("Dokumente");
                 float d2 = dd("Musik");
@@ -225,6 +300,9 @@ namespace WinR
                     //psi.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
                     psi.FileName = "explorer";
                     psi.Arguments = "\""+s+"\"" ;
+
+                    sw.WriteLine(psi.FileName + " " + psi.Arguments);
+
                     Process.Start(psi);
                 }
                 //else if (Directory.Exists(Path.Combine(userDir, s)))
@@ -284,6 +362,7 @@ namespace WinR
                             psi1.FileName = "explorer.exe";
                             psi1.Arguments = "shell:::" + pathToOpen;
                             Process.Start(psi1);
+                            sw.WriteLine(psi1.FileName + " " + psi1.Arguments);
                             return;
                         }
                         else
@@ -294,11 +373,12 @@ namespace WinR
                             psi1.FileName = "explorer.exe";
                             psi1.Arguments = pathToOpen;
                             Process.Start(psi1);
+                            sw.WriteLine(psi1.FileName + " " + psi1.Arguments);
                             return;
                         }
 
                     }
-
+                    
 
 
                     ProcessStartInfo psi = new ProcessStartInfo();
@@ -306,7 +386,7 @@ namespace WinR
                     psi.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
                     psi.FileName = "cmd";
                     psi.Arguments = "/c start " + s;
-
+                    sw.WriteLine(s);
 
                     //psi.FileName = "powershell";
                     //psi.Arguments = "start " + s;
@@ -321,7 +401,7 @@ namespace WinR
 
 
 
-
+                sw.Close();
             }
         }
 

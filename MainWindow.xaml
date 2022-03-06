@@ -80,7 +80,8 @@
                 Margin="10 10">
             <TextBlock Text="Öffnen: " 
                    Padding="4 3"/>
-            <ComboBox
+            <local:FilteredComboBox
+                Style="{DynamicResource MaterialDesignComboBox}"
             x:Name="FilteredComboBox1" 
             ItemsPanel="{DynamicResource ItemsTemplate}" 
             Padding="4 3" 

@@ -1,0 +1,2 @@
+docs;Documents
+teams;%localAppData%\Microsoft\Teams\Update.exe --processStart Teams.exe

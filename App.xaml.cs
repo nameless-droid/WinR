@@ -160,7 +160,7 @@ namespace WinR
                             App.Current.MainWindow.Activate();
                             
 
-                            //SendMessage(intPtr, WM_CLOSE, 0, IntPtr.Zero);
+                            SendMessage(intPtr, WM_CLOSE, 0, IntPtr.Zero);
                         }
                     ));
 
