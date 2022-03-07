@@ -7,15 +7,16 @@
     <_SuppressWpfTrimError>true</_SuppressWpfTrimError>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <Platforms>AnyCPU;x64</Platforms>
-    <SupportedOSPlatformVersion>10.0.22000.0</SupportedOSPlatformVersion>
-    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <TargetFramework>net6.0-windows10.0.18362.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MaterialDesignThemes" Version="4.3.0" />
     <PackageReference Include="MaterialSkin.2" Version="2.3.1" />
     <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-*" />
-    <PackageReference Include="Microsoft.UI.Xaml" Version="2.8.0-prerelease.220118001" />
+    <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.6" />
+    <PackageReference Include="Microsoft.UI.Xaml" version="2.5.0-prerelease.200812001" targetFramework="native" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,9 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WinR"
-        xmlns:System="clr-namespace:System;assembly=System.Runtime" x:Class="WinR.MainWindow"
+        xmlns:System="clr-namespace:System;assembly=System.Runtime" x:Class="WinR.MainWindowOld"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:winui="clr-namespace:Microsoft.UI.Xaml;assembly=WinRT.Runtime"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
@@ -31,7 +30,7 @@
         <WindowChrome CaptionHeight="20"></WindowChrome>
     </WindowChrome.WindowChrome>-->
     <Grid x:Name="mainGrid">
-        <winui:AutoSuggestBox></winui:AutoSuggestBox>
+
         <StackPanel WindowChrome.IsHitTestVisibleInChrome="True" Orientation="Horizontal" FlowDirection="RightToLeft" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="100" ClipToBounds="True" SnapsToDevicePixels="True" UseLayoutRounding="True" ScrollViewer.VerticalScrollBarVisibility="Disabled">
             <Button Visibility="Collapsed" Click="CloseClick_HideWindow" FocusVisualStyle="{x:Null}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="20" Height="20" Padding="0">
                 <materialDesign:PackIcon Kind="CloseBox" Width="10" Height="10" VerticalAlignment="Center" HorizontalAlignment="Center"/>

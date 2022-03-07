@@ -26,14 +26,12 @@ using Path = System.IO.Path;
 using Forms = System.Windows.Forms;
 using Drawing = System.Drawing;
 
-using MUXC = Microsoft.UI.Xaml.Controls;
-
 namespace WinR
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindowOld : Window
     {
         //public static DependencyProperty WndActiveProperty = DependencyProperty.Register("WndActive", typeof(bool), typeof(Button), new PropertyMetadata(""));
         //public bool WndActive
@@ -50,7 +48,7 @@ namespace WinR
         //    set { wndactive = value; }
         //}
 
-        public MainWindow()
+        public MainWindowOld()
         {
             InitializeComponent();
             //test.Visibility = Visibility.Hidden;
