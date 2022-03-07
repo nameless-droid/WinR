@@ -198,6 +198,7 @@ namespace WinR
                     File.Create(fileName);
                 }
                 StreamWriter sw = File.AppendText(fileName);
+                //sw.Close();
 
                 bool found = false;
 
@@ -219,7 +220,7 @@ namespace WinR
 
                         string[] str = item.Split(";");
                         //if (str[0].Equals(s))
-                        s = str[1];
+                        //s = str[1];
                         if (s.Equals(str[0]))
                         {
                             //Process.Start(str[1]);
@@ -228,8 +229,10 @@ namespace WinR
                             psi.CreateNoWindow = true;
                             psi.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
                             psi.FileName = "cmd";
-                            psi.Arguments = "/c start " + s;
-                            sw.WriteLine(s);
+                            //psi.Arguments = "/c start " + s;
+                            psi.Arguments = "/c start " + str[1];
+                            //sw.WriteLine(s);
+                            sw.WriteLine(str[1]);
 
                             //psi.FileName = "powershell";
                             //psi.Arguments = "start " + s;
