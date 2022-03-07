@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "WinR": {
-      "commandName": "Project",
-      "commandLineArgs": "-debug"
-    }
-  }
-}
