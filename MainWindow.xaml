@@ -3,11 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:xamlhost="clr-namespace:Microsoft.Toolkit.Wpf.UI.XamlHost;assembly=Microsoft.Toolkit.Wpf.UI.XamlHost"
         xmlns:local="clr-namespace:WinR"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded">
     <Grid>
-        <xamlhost:WindowsXamlHost x:Name="autoSuggestBoxHost" InitialTypeName="Windows.UI.Xaml.AutoSuggestBox" ChildChanged="AutoSuggestBoxHost_ChildChanged"></xamlhost:WindowsXamlHost>
+        <!--<xamlhost:WindowsXamlHost x:Name="autoSuggestBoxHost" InitialTypeName="Windows.UI.Xaml.AutoSuggestBox" ChildChanged="AutoSuggestBoxHost_ChildChanged"></xamlhost:WindowsXamlHost>-->
+        <ui:AutoSuggestBox x:Name="autoSuggestBox" TextChanged="AutoSuggestBox_TextChanged"
+                SuggestionChosen="AutoSuggestBox_SuggestionChosen"
+                Width="300" AutomationProperties.Name="Basic AutoSuggestBox" KeyDown="AutoSuggestBox_KeyDown" KeyUp="AutoSuggestBox_KeyDown"/>
     </Grid>
 </Window>

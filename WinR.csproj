@@ -7,14 +7,19 @@
     <UseWPF>true</UseWPF>
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <TargetFrameworks>net6.0-windows10.0.19041.0</TargetFrameworks>
-    <CsWinRTComponent>true</CsWinRTComponent>
+    <UseWindowsForms>True</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls" Version="6.1.2" />
-    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.XamlHost" Version="6.1.2" />
+    <PackageReference Include="ModernWpfUI" Version="0.9.4" />
     <PackageReference Include="System.Runtime.InteropServices.WindowsRuntime" Version="4.3.0" />
     <FrameworkReference Include="Microsoft.WindowsDesktop.App.Wpf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Gma.UserActivityMonitor">
+      <HintPath>HookManager\Gma.UserActivityMonitor.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
