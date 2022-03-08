@@ -15,6 +15,11 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
+using ui = Microsoft.UI.Xaml.Controls;
+using Path = System.IO.Path;
+//using Forms = System.Windows.Forms;
+using Drawing = System.Drawing;
+
 namespace WinR
 {
     /// <summary>
@@ -25,6 +30,7 @@ namespace WinR
         public MainPage()
         {
             this.InitializeComponent();
+            
         }
     }
 }
