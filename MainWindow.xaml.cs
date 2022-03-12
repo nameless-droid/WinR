@@ -115,6 +115,112 @@ namespace WinR
 
         //DateTime lastTime = DateTime.Now;
         MessageBoxResult result;
+
+        private bool ExecuteCustomCommands(string cmd)
+        {
+
+            //((ComboBox)sender).IsDropDownOpen = true;   
+            //return;
+            string userDir = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
+            //string s = ((FilteredComboBox)sender).Text;
+            //if (string.IsNullOrEmpty(s))
+
+
+            var fileName = "command-history.txt";
+            if (!File.Exists(fileName))
+            {
+                File.Create(fileName);
+            }
+
+            //StreamWriter sw = File.AppendText(fileName);
+
+
+            //sw.Close();
+
+            bool found = false;
+
+            //if (cmd.StartsWith("<"))
+            //{
+            if (cmd.StartsWith("< "))
+            {
+                cmd = cmd.Remove(0, 2);
+            }
+            else if (cmd.StartsWith("<"))
+            {
+                cmd = cmd.Remove(0, 1);
+            }
+
+            string[] lines = System.IO.File.ReadAllLines(@"custom.txt");
+
+            foreach (var item in lines)
+            {
+
+                string[] str = item.Split(";");
+                //if (str[0].Equals(s))
+                //s = str[1];
+                if (cmd.Equals(str[0]))
+                {
+                    //Process.Start(str[1]);
+
+                    ProcessStartInfo psi = new ProcessStartInfo();
+                    psi.CreateNoWindow = true;
+                    psi.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
+                    psi.FileName = "cmd";
+                    //psi.Arguments = "/c start " + s;
+                    psi.Arguments = "/c start " + str[1];
+                    //sw.WriteLine(s);
+                    using (var stream = File.AppendText(fileName))
+                    {
+                        stream.WriteLine(str[1]);
+                    }
+
+
+                    //psi.FileName = "powershell";
+                    //psi.Arguments = "start " + s;
+                    //psi.UseShellExecute = true;
+                    //psi.ErrorDialog = true;
+                    //psi.RedirectStandardError = true;
+                    //psi.FileName = s;
+                    //psi.Arguments = s;
+
+                    Process p = new Process();
+                    p.StartInfo = psi;  
+                    try
+                    {
+                        p.Start();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                        //throw;
+                    }
+
+                    p.ErrorDataReceived += P_ErrorDataReceived;
+                    //return;
+                    found = true;
+                    return true;
+                    //break;
+                }
+            }
+
+
+
+            //s.Replace("< ", "");
+            //}
+
+
+            if (found == true)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void P_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         private void AutoSuggestBox_KeyUp(object sender, KeyEventArgs e)
         {
             /*
@@ -139,10 +245,16 @@ namespace WinR
 
             if (e.Key == Key.Enter)
             {
+
+
                 //result = MessageBoxResult.None;
                 //lastTime = DateTime.Now;
 
                 string cmd = autoSuggestBox.Text;
+
+                if (ExecuteCustomCommands(cmd))
+                    return;
+
                 cmd = cmd.StartsWith("/") ? cmd.Remove(0, 1) : cmd;
                 cmd = cmd.StartsWith("\\") ? cmd.Remove(0, 1) : cmd;
 
