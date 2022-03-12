@@ -16,7 +16,13 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 //using Windows.UI.Xaml.Controls;
 
+using System.Diagnostics;
 using Path = System.IO.Path;
+using Forms = System.Windows.Forms;
+using Drawing = System.Drawing;
+using Rectangle = System.Drawing.Rectangle;
+using static DllImports;
+using System.Windows.Interop;
 
 namespace WinR
 {
@@ -26,6 +32,19 @@ namespace WinR
     public partial class MainWindow : Window
     {
         List<string> list = new List<string>();
+
+        //MainWindow Singleton;
+
+        //public MainWindow Instance
+        //{
+        //    get {
+        //        if (App.Current.Windows[] MainWindow)
+        //        {
+
+        //        }    
+        //        return Singleton; 
+        //    }
+        //}
 
         public MainWindow()
         {
@@ -74,6 +93,14 @@ namespace WinR
             //autoSuggestBox.ItemsSource = this;
 
             WinKeyboardHook.Sub();
+            WinKeyboardHook.SetDefaultPosOnCurrentScreen();
+        }
+
+        
+
+        internal static void SetPositionToCurrentWindowOrDefaultPosOnWnd()
+        {
+            
         }
 
         private void AutoSuggestBox_TextChanged(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxTextChangedEventArgs args)
@@ -86,7 +113,9 @@ namespace WinR
             ;
         }
 
-        private void AutoSuggestBox_KeyDown(object sender, KeyEventArgs e)
+        //DateTime lastTime = DateTime.Now;
+        MessageBoxResult result;
+        private void AutoSuggestBox_KeyUp(object sender, KeyEventArgs e)
         {
             /*
             AutoSuggestBox autoSuggestBox = sender as AutoSuggestBox;
@@ -100,22 +129,50 @@ namespace WinR
             //AutoSuggestBox autoSuggestBox = sender as AutoSuggestBox;
             //List<string> valueList = autoSuggestBox.ItemsSource as List<string>;
 
+            //DateTime d = lastTime.AddSeconds(5);
+            //DateTime.Now > d
+            //if (e.Key == Key.Enter && result == MessageBoxResult.None)
+            //IntPtr intPtr = DllImports.GetWindow(GetActiveWindow(), GetWindowType.GW_ENABLEDPOPUP);
+            //bool b = intPtr == IntPtr.Zero;
+            //bool b = GetActiveWindow() == new WindowInteropHelper(this).Handle;
+            //bool b = GetActiveWindowClass().Equals("#32770");
 
             if (e.Key == Key.Enter)
             {
+                result = MessageBoxResult.None;
+                //lastTime = DateTime.Now;
+
                 //if (((AutoSuggestBox)sender).ItemsSource.)
                 if (list.Contains(autoSuggestBox.Text))
                 {
                     try
                     {
-                        System.Diagnostics.Process.Start(autoSuggestBox.Text);
+                        Process.Start(autoSuggestBox.Text);
                     }
                     catch (Exception)
                     {
-                        MessageBox.Show("Error");
+                         MessageBox.Show("Error");
                     }
 
                 }
+                else
+                {
+                    //bool state = false;
+                    Process p = null;
+                    try
+                    {
+                        p = Process.Start(autoSuggestBox.Text);
+                    }
+                    catch (Exception)
+                    {
+                        result = MessageBox.Show("Couldn't start");
+                    }
+
+                    //if (p == null)
+                    //    MessageBox.Show("Couldn't start");
+                }
+
+
             }
 
         }

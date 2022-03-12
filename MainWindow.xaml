@@ -7,11 +7,11 @@
         xmlns:ui="http://schemas.modernwpf.com/2019"
         ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded">
+        Title="MainWindow" Height="213" Width="415" Left="8" Loaded="Window_Loaded">
     <Grid>
         <!--<xamlhost:WindowsXamlHost x:Name="autoSuggestBoxHost" InitialTypeName="Windows.UI.Xaml.AutoSuggestBox" ChildChanged="AutoSuggestBoxHost_ChildChanged"></xamlhost:WindowsXamlHost>-->
         <ui:AutoSuggestBox x:Name="autoSuggestBox" TextChanged="AutoSuggestBox_TextChanged"
                 SuggestionChosen="AutoSuggestBox_SuggestionChosen"
-                Width="300" AutomationProperties.Name="Basic AutoSuggestBox" KeyDown="AutoSuggestBox_KeyDown" KeyUp="AutoSuggestBox_KeyDown"/>
+                Width="300" AutomationProperties.Name="Basic AutoSuggestBox" KeyUp="AutoSuggestBox_KeyUp"/>
     </Grid>
 </Window>

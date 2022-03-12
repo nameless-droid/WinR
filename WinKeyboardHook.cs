@@ -6,6 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using Path = System.IO.Path;
+using Forms = System.Windows.Forms;
+using Drawing = System.Drawing;
+using Rectangle = System.Drawing.Rectangle;
+
+using static DllImports;
+
 namespace WinR
 {
     internal class WinKeyboardHook
@@ -46,9 +53,78 @@ namespace WinR
                 App.Current.MainWindow.WindowState = System.Windows.WindowState.Normal;
                 App.Current.MainWindow.Show();
                 App.Current.MainWindow.Activate();
-
+                //App.Current.MainWindow.SetPositionToCurrentWindowOrDefaultPosOnWnd();
+                //MainWindow.SetPositionToCurrentWindowOrDefaultPosOnWnd()
+                //SetDefaultPosOnCurrentScreen();
+                //MoveToScreenButKeepRelativePos();
+                SetWndPosRelativeBasedOnWhichScreenCursorIsOn();
             }
 
+        }
+
+
+        private static Drawing.Point cursorPos
+        {
+            get
+            {
+                POINT point;
+                GetCursorPos(out point);
+                return point;
+            }
+        }
+
+        //private Forms.Screen getScreenWithMouse => Forms.Screen.FromPoint(GetCursorPos());
+        private static Forms.Screen getScreenWithMouse => Forms.Screen.FromPoint(cursorPos);
+        private static Forms.Screen getCurrentScreen => Forms.Screen.FromPoint(new Drawing.Point((int)App.Current.MainWindow.Left, (int)App.Current.MainWindow.Top));
+        private int getCurrentScreenLeft => getCurrentScreen.Bounds.Left;
+        private int getCurrentScreenY => getCurrentScreen.Bounds.Y;
+        //private int currentScreenTaskbarHeight => Forms.Screen.FromPoint(getCurrentPos).Bounds.Height - Forms.Screen.PrimaryScreen.WorkingArea.Height;
+
+        public static void SetDefaultPosOnCurrentScreen()
+        {
+            //App.Current.MainWindow.WindowState = System.Windows.WindowState.Normal;
+            //int taskbarHeight = Forms.Screen.PrimaryScreen.Bounds.Height - Forms.Screen.PrimaryScreen.WorkingArea.Height;
+            int taskbarHeight = getScreenWithMouse.Bounds.Height - getScreenWithMouse.WorkingArea.Height;
+
+            App.Current.MainWindow.Left = 10;
+            App.Current.MainWindow.Top = getScreenWithMouse.Bounds.Height - App.Current.MainWindow.ActualHeight - taskbarHeight - 10;
+        }
+
+        //static void SetPositionToCurrentWindowOrDefaultPosOnWnd()
+        static void MoveToScreenButKeepRelativePos()
+        {
+            /*
+            System.Windows.Window wnd = App.Current.MainWindow;
+            //wnd.Left = 10;
+            if (wnd.Left < getScreenWithMouse.Bounds.Left)
+            {
+                wnd.Left = getScreenWithMouse.Bounds.Left + wnd.Left;
+            }
+            else if (wnd.Left > getScreenWithMouse.Bounds.Right)
+            //else if (wnd.Left)
+            {
+                wnd.Left = getScreenWithMouse.Bounds.Left - wnd.Left;
+            }
+            */
+        }
+
+        private static void SetWndPosRelativeBasedOnWhichScreenCursorIsOn()
+        {
+            #region position
+            double left = App.Current.MainWindow.Left;
+            double top = App.Current.MainWindow.Top;
+
+            if (left < getScreenWithMouse.Bounds.Left)
+            {
+                App.Current.MainWindow.Left = App.Current.MainWindow.Left + getScreenWithMouse.Bounds.Width;
+            }
+
+            else if (left > getScreenWithMouse.Bounds.Left + getScreenWithMouse.Bounds.Width)
+            {
+                App.Current.MainWindow.Left = App.Current.MainWindow.Left - getScreenWithMouse.Bounds.Width;
+            }
+
+            #endregion
         }
 
         private static void HookManager_KeyUp(object sender, KeyEventArgs e)
