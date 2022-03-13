@@ -10,8 +10,12 @@
         Title="MainWindow" Height="213" Width="415" Left="8" Loaded="Window_Loaded">
     <Grid>
         <!--<xamlhost:WindowsXamlHost x:Name="autoSuggestBoxHost" InitialTypeName="Windows.UI.Xaml.AutoSuggestBox" ChildChanged="AutoSuggestBoxHost_ChildChanged"></xamlhost:WindowsXamlHost>-->
-        <ui:AutoSuggestBox x:Name="autoSuggestBox" TextChanged="AutoSuggestBox_TextChanged"
+        <!--<ui:AutoSuggestBox x:Name="autoSuggestBox" TextChanged="AutoSuggestBox_TextChanged"
                 SuggestionChosen="AutoSuggestBox_SuggestionChosen"
-                Width="300" AutomationProperties.Name="Basic AutoSuggestBox" KeyUp="AutoSuggestBox_KeyUp"/>
+                Width="300" AutomationProperties.Name="Basic AutoSuggestBox" KeyUp="AutoSuggestBox_KeyUp" IsTextSearchEnabled="True"/>-->
+        <ui:AutoSuggestBox x:Name="autoSuggestBox" PlaceholderText="Search" QueryIcon="Find" Width="200"
+                TextChanged="AutoSuggestBox_TextChanged"
+                QuerySubmitted="AutoSuggestBox_QuerySubmitted"
+                SuggestionChosen="AutoSuggestBox_SuggestionChosen"/>
     </Grid>
 </Window>

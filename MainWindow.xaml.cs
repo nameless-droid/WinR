@@ -105,7 +105,24 @@ namespace WinR
 
         private void AutoSuggestBox_TextChanged(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxTextChangedEventArgs args)
         {
-
+            var suitableItems = new List<string>();
+            var splitText = sender.Text.ToLower().Split(" ");
+            foreach (var item in list)
+            {
+                var found = splitText.All((key) =>
+                {
+                    return item.ToLower().Contains(key);
+                });
+                if (found)
+                {
+                    suitableItems.Add(item);
+                }
+            }
+            if (suitableItems.Count == 0)
+            {
+                suitableItems.Add("No results found");
+            }
+            sender.ItemsSource = suitableItems;
         }
 
         private void AutoSuggestBox_SuggestionChosen(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxSuggestionChosenEventArgs args)
@@ -182,9 +199,18 @@ namespace WinR
                     //psi.RedirectStandardError = true;
                     //psi.FileName = s;
                     //psi.Arguments = s;
-
+                    //psi.RedirectStandardError = true;
+                    
                     Process p = new Process();
-                    p.StartInfo = psi;  
+                    p.StartInfo = psi;
+                    //p.ErrorDataReceived += P_ErrorDataReceived;
+                    //p.BeginErrorReadLine();
+                    //App.Current.MainWindow.Dispatcher.Thread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
+                    //App.Current.MainWindow.Dispatcher.Thread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+
+                    System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+                    System.Threading.Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+                    //Process.Start(psi.FileName, psi.Arguments);
                     try
                     {
                         p.Start();
@@ -194,8 +220,8 @@ namespace WinR
                         MessageBox.Show(ex.Message);
                         //throw;
                     }
+                    //string s = p.StandardError.ReadToEnd();    
 
-                    p.ErrorDataReceived += P_ErrorDataReceived;
                     //return;
                     found = true;
                     return true;
@@ -260,15 +286,19 @@ namespace WinR
 
                 Process p = new Process();
                 ProcessStartInfo info = new ProcessStartInfo();
-                info.FileName = "cmd";
-                info.Arguments = cmd;   
+
+
                 info.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
                 info.UseShellExecute = true;
                 p.StartInfo = info;
 
                 //if (((AutoSuggestBox)sender).ItemsSource.)
+                /*
                 if (list.Contains(autoSuggestBox.Text))
                 {
+                    info.FileName = cmd;
+
+
                     try
                     {
                         //Process.Start(cmd);
@@ -276,38 +306,76 @@ namespace WinR
                     }
                     catch (Exception ex)
                     {
-                         MessageBox.Show("Error");
+                        MessageBox.Show("Error");
                     }
 
                 }
                 else
                 {
-                    //bool state = false;
-                    /*
-                    Process p = new Process();
-                    ProcessStartInfo info = new ProcessStartInfo();
+                */
+
+                info.Arguments = "/c " + cmd;
+
+                if (Directory.Exists(cmd))
+                {
+                    //Process.Start("cmd", cmd);
                     info.FileName = cmd;
-                    info.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
-                    */
-                    //info.UseShellExecute = true;
-
-                    p.StartInfo = info;
-                    try
-                    {
-                        //p = Process.Start(autoSuggestBox.Text);
-                        p.Start();
-                    }
-                    catch (Exception ex)
-                    {
-                        result = MessageBox.Show(ex.Message ,"Couldn't start");
-                    }
-
-                    //if (p == null)
-                    //    MessageBox.Show("Couldn't start");
+                    p.Start();
+                    return;
                 }
+                else if (File.Exists(cmd))
+                {
+                    Process.Start(cmd);
+                    return;
+                }
+                else if (cmd.StartsWith("shell:"))
+                {
+                    info.Arguments = "/c start " + cmd;
+                }
+
+                //bool state = false;
+                /*
+                Process p = new Process();
+                ProcessStartInfo info = new ProcessStartInfo();
+                info.FileName = cmd;
+                info.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
+                */
+                //info.UseShellExecute = true;
+
+                //info.FileName = "cmd";
+                info.CreateNoWindow = true;
+                info.WindowStyle = ProcessWindowStyle.Hidden;
+                //info.Arguments = "start /c" + cmd;
+
+                info.UseShellExecute = true;
+                info.FileName = "cmd";
+
+                p.StartInfo = info;
+
+                try
+                {
+                    //p = Process.Start(autoSuggestBox.Text);
+                    p.Start();
+                }
+                catch (Exception ex)
+                {
+                    result = MessageBox.Show(ex.Message, "Couldn't start");
+                }
+
+                //if (p == null)
+                //    MessageBox.Show("Couldn't start");
+
+                /*
+                 }
+                */
 
 
             }
+
+        }
+
+        private void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
 
         }
 
