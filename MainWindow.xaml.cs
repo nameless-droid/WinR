@@ -105,6 +105,12 @@ namespace WinR
 
         private void AutoSuggestBox_TextChanged(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxTextChangedEventArgs args)
         {
+            //AutoSuggestBox autoSuggestBox = sender as AutoSuggestBox;
+            //okButton.IsEnabled = autoSuggestBox.Text.Length > 0;
+            okButton.IsEnabled = autoSuggestBox.Text.Trim().Length > 0;
+
+
+
             var suitableItems = new List<string>();
             var splitText = sender.Text.ToLower().Split(" ");
             foreach (var item in list)
@@ -127,7 +133,7 @@ namespace WinR
 
         private void AutoSuggestBox_SuggestionChosen(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxSuggestionChosenEventArgs args)
         {
-            ;
+            
         }
 
         //DateTime lastTime = DateTime.Now;
@@ -273,108 +279,142 @@ namespace WinR
             {
 
 
-                //result = MessageBoxResult.None;
-                //lastTime = DateTime.Now;
-
-                string cmd = autoSuggestBox.Text;
-
-                if (ExecuteCustomCommands(cmd))
-                    return;
-
-                cmd = cmd.StartsWith("/") ? cmd.Remove(0, 1) : cmd;
-                cmd = cmd.StartsWith("\\") ? cmd.Remove(0, 1) : cmd;
-
-                Process p = new Process();
-                ProcessStartInfo info = new ProcessStartInfo();
-
-
-                info.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
-                info.UseShellExecute = true;
-                p.StartInfo = info;
-
-                //if (((AutoSuggestBox)sender).ItemsSource.)
-                /*
-                if (list.Contains(autoSuggestBox.Text))
-                {
-                    info.FileName = cmd;
-
-
-                    try
-                    {
-                        //Process.Start(cmd);
-                        p.Start();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Error");
-                    }
-
-                }
-                else
-                {
-                */
-
-                info.Arguments = "/c " + cmd;
-
-                if (Directory.Exists(cmd))
-                {
-                    //Process.Start("cmd", cmd);
-                    info.FileName = cmd;
-                    p.Start();
-                    return;
-                }
-                else if (File.Exists(cmd))
-                {
-                    Process.Start(cmd);
-                    return;
-                }
-                else if (cmd.StartsWith("shell:"))
-                {
-                    info.Arguments = "/c start " + cmd;
-                }
-
-                //bool state = false;
-                /*
-                Process p = new Process();
-                ProcessStartInfo info = new ProcessStartInfo();
-                info.FileName = cmd;
-                info.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
-                */
-                //info.UseShellExecute = true;
-
-                //info.FileName = "cmd";
-                info.CreateNoWindow = true;
-                info.WindowStyle = ProcessWindowStyle.Hidden;
-                //info.Arguments = "start /c" + cmd;
-
-                info.UseShellExecute = true;
-                info.FileName = "cmd";
-
-                p.StartInfo = info;
-
-                try
-                {
-                    //p = Process.Start(autoSuggestBox.Text);
-                    p.Start();
-                }
-                catch (Exception ex)
-                {
-                    result = MessageBox.Show(ex.Message, "Couldn't start");
-                }
-
-                //if (p == null)
-                //    MessageBox.Show("Couldn't start");
-
-                /*
-                 }
-                */
-
 
             }
 
         }
 
         private void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            if (args.ChosenSuggestion == null && autoSuggestBox.Text.Trim().Length > 0)
+            {
+                StartAppOrCommandOrFolder();
+            }
+
+        }
+
+        void StartAppOrCommandOrFolder()
+        {
+
+
+            //result = MessageBoxResult.None;
+            //lastTime = DateTime.Now;
+
+            string cmd = autoSuggestBox.Text;
+
+            if (ExecuteCustomCommands(cmd))
+                return;
+
+            cmd = cmd.StartsWith("/") ? cmd.Remove(0, 1) : cmd;
+            cmd = cmd.StartsWith("\\") ? cmd.Remove(0, 1) : cmd;
+
+            Process p = new Process();
+            ProcessStartInfo info = new ProcessStartInfo();
+
+
+            info.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
+            info.UseShellExecute = true;
+            p.StartInfo = info;
+
+            #region
+            //if (((AutoSuggestBox)sender).ItemsSource.)
+            /*
+            if (list.Contains(autoSuggestBox.Text))
+            {
+                info.FileName = cmd;
+
+
+                try
+                {
+                    //Process.Start(cmd);
+                    p.Start();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error");
+                }
+
+            }
+            else
+            {
+            */
+            #endregion
+
+            info.Arguments = "/c " + cmd;
+
+            //if (cmd.ToLower().Equals(cmd) || cmd.tolow)
+            //{
+
+            //}
+            if (Directory.Exists(cmd))
+            {
+                //Process.Start("cmd", cmd);
+                info.FileName = cmd;
+                p.Start();
+                return;
+            }
+            else if (File.Exists(cmd))
+            {
+                Process.Start(cmd);
+                return;
+            }
+            else if (cmd.StartsWith("shell:"))
+            {
+                info.Arguments = "/c start " + cmd;
+            }
+            //else if (!cmd.Contains(" "))
+            //{
+            //    Process.Start(cmd);
+            //}
+
+
+            //bool state = false;
+            /*
+            Process p = new Process();
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.FileName = cmd;
+            info.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
+            */
+            //info.UseShellExecute = true;
+
+            //info.FileName = "cmd";
+            info.CreateNoWindow = true;
+            info.WindowStyle = ProcessWindowStyle.Hidden;
+            //info.Arguments = "start /c" + cmd;
+
+            //info.UseShellExecute = true;
+            info.FileName = "cmd";
+
+            p.StartInfo = info;
+            info.RedirectStandardError = true;
+            info.UseShellExecute = false;
+            try
+            {
+                //p = Process.Start(autoSuggestBox.Text);
+                p.Start();
+            }
+            catch (Exception ex)
+            {
+                result = MessageBox.Show(ex.Message, "Couldn't start");
+            }
+            string s = p.StandardError.ReadToEnd();
+            //if (result != 0)
+            if (p.HasExited)
+            {
+                //string s1 = p.StandardError.ReadToEnd();
+                MessageBox.Show(s, "");
+            }
+
+
+            //if (p == null)
+            //    MessageBox.Show("Couldn't start");
+
+            /*
+             }
+            */
+        }
+
+        private void okButton_Click(object sender, RoutedEventArgs e)
         {
 
         }

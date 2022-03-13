@@ -10,8 +10,21 @@
                 <ui:ThemeResources />
                 <ui:XamlControlsResources />
                 <!-- Other merged dictionaries here -->
+                <ui:XamlControlsResources>
+                    <!--<Style TargetType="Button" BasedOn="{ui:StaticResource DateTimePickerFlyoutButtonStyle}">-->
+                        <!--<Setter Property="IsDefault">
+                            <Setter.Value>true</Setter.Value>
+                        </Setter>-->
+                        <!--<Style.Triggers>
+                            <Trigger Property="IsDefault" Value="True">
+                                <Setter Property="Background" Value="Blue"></Setter>
+                            </Trigger>
+                        </Style.Triggers-->
+                    <!--</Style>-->
+                </ui:XamlControlsResources>
             </ResourceDictionary.MergedDictionaries>
             <!-- Other app resources here -->
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

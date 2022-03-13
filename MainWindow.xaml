@@ -7,7 +7,29 @@
         xmlns:ui="http://schemas.modernwpf.com/2019"
         ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
+        FocusManager.FocusedElement="{Binding ElementName=autoSuggestBox}"
         Title="MainWindow" Height="213" Width="415" Left="8" Loaded="Window_Loaded">
+    <Window.Resources>
+        <Style x:Key="MyFocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <!--<Rectangle Margin="-2" StrokeThickness="1" Stroke="Red" StrokeDashArray="1 2"/>-->
+                    <Border Margin="-2" BorderThickness="2" BorderBrush="Blue" CornerRadius="4"></Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        </Style>
+        <Style x:Key="MyButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+            <Style.Triggers>
+                <Trigger Property="IsDefault" Value="True">
+                    <!--<Setter Property="Background" Value="Blue"></Setter>-->
+                    <Setter Property="BorderBrush" Value="Blue"></Setter>
+                    <Setter Property="BorderThickness" Value="1"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <Grid>
         <!--<xamlhost:WindowsXamlHost x:Name="autoSuggestBoxHost" InitialTypeName="Windows.UI.Xaml.AutoSuggestBox" ChildChanged="AutoSuggestBoxHost_ChildChanged"></xamlhost:WindowsXamlHost>-->
         <!--<ui:AutoSuggestBox x:Name="autoSuggestBox" TextChanged="AutoSuggestBox_TextChanged"
@@ -17,5 +39,12 @@
                 TextChanged="AutoSuggestBox_TextChanged"
                 QuerySubmitted="AutoSuggestBox_QuerySubmitted"
                 SuggestionChosen="AutoSuggestBox_SuggestionChosen"/>
+
+        <!-- Accept or Cancel -->
+        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <!--<Button Style="{ui:ThemeResource MyButtonStyle}" Name="okButton" Click="okButton_Click" IsDefault="True" IsEnabled="False">OK</Button>-->
+            <Button Style="{DynamicResource MyButtonStyle}"  Name="okButton" Click="okButton_Click" IsDefault="True" IsEnabled="False">OK</Button>
+            <Button FocusVisualStyle="{DynamicResource MyFocusVisual}" Name="cancelButton" IsCancel="True">Cancel</Button>
+        </StackPanel>
     </Grid>
 </Window>

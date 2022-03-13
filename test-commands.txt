@@ -1,0 +1,12 @@
+shell:startup
+notepad
+start cmd
+cmd
+C:
+C:/
+C:\
+/C:/
+/C:/
+start C: && start E:
+taskkill /f /im winr.exe
+taskkill /f /im taskmgr.exe

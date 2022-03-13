@@ -22,4 +22,13 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+  <DesignData Include="Properties\DesignTimeResources.xaml">
+    <SubType>Designer</SubType>
+    <Generator>MSBuild:Compile</Generator>
+    <ContainsDesignTimeResources>true</ContainsDesignTimeResources>
+    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+  </DesignData>
+</ItemGroup>
+
 </Project>
