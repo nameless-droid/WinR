@@ -12,6 +12,8 @@ using Drawing = System.Drawing;
 using Rectangle = System.Drawing.Rectangle;
 
 using static DllImports;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 
 namespace WinR
 {
@@ -48,11 +50,23 @@ namespace WinR
 
             if (e.KeyCode == Keys.R && WIN())
             {
+                System.Windows.Window mainWindow = App.Current.MainWindow;
+
                 e.Handled = true;
                 //App.Current.Dispatcher.BeginInvoke(new Action(() =>
+
+                IntPtr intPtr = new WindowInteropHelper(App.Current.MainWindow).Handle;
+
+                //SetForegroundWindow(intPtr);
+                uint flags = (uint) (SWP.SHOWWINDOW | SWP.NOMOVE | SWP.NOSIZE);
+                DllImports.SetWindowPos(intPtr, DllImports.HWND.TopMost, 0, 0, 0, 0, flags);
+                DllImports.SetWindowPos(intPtr, DllImports.HWND.NoTopMost, 0, 0, 0, 0, flags);
+
                 App.Current.MainWindow.WindowState = System.Windows.WindowState.Normal;
                 App.Current.MainWindow.Show();
                 App.Current.MainWindow.Activate();
+                
+
                 //App.Current.MainWindow.SetPositionToCurrentWindowOrDefaultPosOnWnd();
                 //MainWindow.SetPositionToCurrentWindowOrDefaultPosOnWnd()
                 //SetDefaultPosOnCurrentScreen();
@@ -202,5 +216,9 @@ namespace WinR
                 return false;
             }
         }
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
     }
 }

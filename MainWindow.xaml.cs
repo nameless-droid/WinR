@@ -23,6 +23,7 @@ using Drawing = System.Drawing;
 using Rectangle = System.Drawing.Rectangle;
 using static DllImports;
 using System.Windows.Interop;
+using System.Windows.Threading;
 
 namespace WinR
 {
@@ -31,6 +32,7 @@ namespace WinR
     /// </summary>
     public partial class MainWindow : Window
     {
+        bool highlightInExplorer = false;
         List<string> list = new List<string>();
 
         //MainWindow Singleton;
@@ -109,8 +111,6 @@ namespace WinR
             //okButton.IsEnabled = autoSuggestBox.Text.Length > 0;
             okButton.IsEnabled = autoSuggestBox.Text.Trim().Length > 0;
 
-
-
             var suitableItems = new List<string>();
             var splitText = sender.Text.ToLower().Split(" ");
             foreach (var item in list)
@@ -173,7 +173,23 @@ namespace WinR
                 cmd = cmd.Remove(0, 1);
             }
 
-            string[] lines = System.IO.File.ReadAllLines(@"custom.txt");
+            string[] lines;
+
+            try
+            {
+                if (!File.Exists("custom.txt"))
+                {
+                    File.Create("custom.txt");
+                }
+
+                lines = System.IO.File.ReadAllLines(@"custom.txt");
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
 
             foreach (var item in lines)
             {
@@ -307,6 +323,8 @@ namespace WinR
 
             cmd = cmd.StartsWith("/") ? cmd.Remove(0, 1) : cmd;
             cmd = cmd.StartsWith("\\") ? cmd.Remove(0, 1) : cmd;
+            cmd = cmd.StartsWith("\"") ? cmd.Remove(0, 1) : cmd;
+            cmd = cmd.EndsWith("\"") ? cmd.Remove(cmd.Length-1, 1) : cmd;
 
             Process p = new Process();
             ProcessStartInfo info = new ProcessStartInfo();
@@ -346,18 +364,19 @@ namespace WinR
             //{
 
             //}
-            if (Directory.Exists(cmd))
+            if (Directory.Exists(cmd) || File.Exists(cmd))
             {
                 //Process.Start("cmd", cmd);
-                info.FileName = cmd;
-                p.Start();
+                //info.FileName = cmd;
+                //p.Start();
+                Process.Start("explorer", highlightInExplorer ? "/select," + cmd : cmd);
                 return;
             }
-            else if (File.Exists(cmd))
-            {
-                Process.Start(cmd);
-                return;
-            }
+            //else if (File.Exists(cmd))
+            //{
+            //    Process.Start(cmd);
+            //    return;
+            //}
             else if (cmd.StartsWith("shell:"))
             {
                 info.Arguments = "/c start " + cmd;
@@ -397,11 +416,11 @@ namespace WinR
             {
                 result = MessageBox.Show(ex.Message, "Couldn't start");
             }
-            string s = p.StandardError.ReadToEnd();
+            //string s = p.StandardError.ReadToEnd();
             //if (result != 0)
             if (p.HasExited)
             {
-                //string s1 = p.StandardError.ReadToEnd();
+                string s = p.StandardError.ReadToEnd();
                 MessageBox.Show(s, "");
             }
 
@@ -416,7 +435,31 @@ namespace WinR
 
         private void okButton_Click(object sender, RoutedEventArgs e)
         {
+            StartAppOrCommandOrFolder();
+        }
 
+        private void HighlightCheckbox_CheckedUnchecked(object sender, RoutedEventArgs e)
+        {
+            CheckBox? checkBox = (sender as CheckBox);
+            highlightInExplorer = (bool)checkBox.IsChecked;
+        }
+
+        private void Window_Deactivated(object sender, EventArgs e)
+        {
+            this.Hide();
+        }
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            autoSuggestBox.Focus();
+            Keyboard.Focus(autoSuggestBox as AutoSuggestBox);
+
+            Dispatcher.BeginInvoke(DispatcherPriority.Input,
+            new Action(delegate ()
+            {
+                autoSuggestBox.Focus();         // Set Logical Focus
+                Keyboard.Focus(autoSuggestBox); // Set Keyboard Focus
+            }));
         }
 
         //private void AutoSuggestBoxHost_ChildChanged(object sender, EventArgs e)

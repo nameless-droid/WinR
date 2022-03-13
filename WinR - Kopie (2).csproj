@@ -4,10 +4,19 @@
     <OutputType>WinExe</OutputType>
     <!-- <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework> -->
     <Nullable>enable</Nullable>
+
     <SupportedOSPlatformVersion>10.0.20348.0</SupportedOSPlatformVersion>
     <TargetFramework>net6.0-windows10.0.20348.0</TargetFramework>
-    <UseWindowsForms>True</UseWindowsForms>
-    <UseWPF>True</UseWPF>
+
+
+	<UseWPF>true</UseWPF>
+	<_SuppressWpfTrimError>true</_SuppressWpfTrimError>
+	<UseWindowsForms>True</UseWindowsForms>
+    <_SuppressWindowsFormsTrimError>true</_SuppressWindowsFormsTrimError>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TargetPlatform>Windows</TargetPlatform>
+	<!-- <PublishSingleFile>true</PublishSingleFile> -->
+  <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

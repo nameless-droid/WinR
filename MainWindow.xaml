@@ -8,7 +8,7 @@
         ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
         FocusManager.FocusedElement="{Binding ElementName=autoSuggestBox}"
-        Title="MainWindow" Height="213" Width="415" Left="8" Loaded="Window_Loaded">
+        Title="MainWindow" Height="213" Width="415" Left="8" Loaded="Window_Loaded" Activated="Window_Activated" ShowActivated="True" ShowInTaskbar="False" Deactivated="Window_Deactivated">
     <Window.Resources>
         <Style x:Key="MyFocusVisual">
         <Setter Property="Control.Template">
@@ -29,22 +29,53 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <!--<Style TargetType="{x:Type Button}" BasedOn="{StaticResource DefaultButtonStyle}">
+            <Setter Property="Width" Value="70" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Margin" Value="5,0,0,0" />
+        </Style>-->
     </Window.Resources>
-    <Grid>
+    <Grid Margin="12">
         <!--<xamlhost:WindowsXamlHost x:Name="autoSuggestBoxHost" InitialTypeName="Windows.UI.Xaml.AutoSuggestBox" ChildChanged="AutoSuggestBoxHost_ChildChanged"></xamlhost:WindowsXamlHost>-->
         <!--<ui:AutoSuggestBox x:Name="autoSuggestBox" TextChanged="AutoSuggestBox_TextChanged"
                 SuggestionChosen="AutoSuggestBox_SuggestionChosen"
                 Width="300" AutomationProperties.Name="Basic AutoSuggestBox" KeyUp="AutoSuggestBox_KeyUp" IsTextSearchEnabled="True"/>-->
-        <ui:AutoSuggestBox x:Name="autoSuggestBox" PlaceholderText="Search" QueryIcon="Find" Width="200"
+
+        <!--<Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>-->
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <ui:AutoSuggestBox x:FieldModifier="public" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="autoSuggestBox" PlaceholderText="Search" QueryIcon="Find"
                 TextChanged="AutoSuggestBox_TextChanged"
                 QuerySubmitted="AutoSuggestBox_QuerySubmitted"
                 SuggestionChosen="AutoSuggestBox_SuggestionChosen"/>
-
+        <CheckBox Content="Highlight Files / Folders" Checked="HighlightCheckbox_CheckedUnchecked" Unchecked="HighlightCheckbox_CheckedUnchecked"></CheckBox>
         <!-- Accept or Cancel -->
         <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
             <!--<Button Style="{ui:ThemeResource MyButtonStyle}" Name="okButton" Click="okButton_Click" IsDefault="True" IsEnabled="False">OK</Button>-->
-            <Button Style="{DynamicResource MyButtonStyle}"  Name="okButton" Click="okButton_Click" IsDefault="True" IsEnabled="False">OK</Button>
-            <Button FocusVisualStyle="{DynamicResource MyFocusVisual}" Name="cancelButton" IsCancel="True">Cancel</Button>
+            <Button Width="90" Height="30" Style="{DynamicResource MyButtonStyle}"  Name="okButton" Click="okButton_Click" IsDefault="True" IsEnabled="False">OK</Button>
+            <Separator Width="30" Background="Transparent"></Separator>
+            <Button Width="90" Height="30" FocusVisualStyle="{DynamicResource MyFocusVisual}" Name="cancelButton" IsCancel="True">Cancel</Button>
         </StackPanel>
     </Grid>
 </Window>
