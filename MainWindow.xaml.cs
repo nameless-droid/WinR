@@ -186,19 +186,26 @@ namespace WinR
             }
             catch (Exception)
             {
-
                 throw;
             }
 
 
             foreach (var item in lines)
             {
+                if (item.StartsWith("//"))
+                {
+                    continue;
+                }
 
                 string[] str = item.Split(";");
                 //if (str[0].Equals(s))
                 //s = str[1];
                 if (cmd.Equals(str[0]))
                 {
+                    ExecuteCommand(str[1]);
+
+                    #region
+                    /*
                     //Process.Start(str[1]);
 
                     ProcessStartInfo psi = new ProcessStartInfo();
@@ -245,13 +252,14 @@ namespace WinR
                     //string s = p.StandardError.ReadToEnd();    
 
                     //return;
+                    */
+                    #endregion
+
                     found = true;
                     return true;
                     //break;
                 }
             }
-
-
 
             //s.Replace("< ", "");
             //}
@@ -307,6 +315,63 @@ namespace WinR
                 StartAppOrCommandOrFolder();
             }
 
+        }
+
+        //void ExecuteCmdOrStartAppOrFolder()
+        /// <summary>
+        /// Starts an application, Opens File Explorer Folder, Execute a command like cmd or taskkill /f /im winr.exe
+        /// </summary>
+        void ExecuteCommand(string cmd)
+        {
+            cmd = RemoveCharactersFromCmd(cmd);
+
+            Process p = new Process();
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
+            info.UseShellExecute = true;
+            info.Arguments = "/c " + cmd;
+
+            if (Directory.Exists(cmd) || File.Exists(cmd))
+            {
+                Process.Start("explorer", highlightInExplorer ? "/select," + cmd : cmd);
+                return;
+            }
+            else if (cmd.StartsWith("shell:"))
+            {
+                info.Arguments = "/c start " + cmd;
+            }
+
+            p.StartInfo = info;
+            info.CreateNoWindow = true;
+            info.WindowStyle = ProcessWindowStyle.Hidden;
+            info.FileName = "cmd";
+            p.StartInfo = info;
+            info.RedirectStandardError = true;
+            info.UseShellExecute = false;
+
+            try
+            {
+                p.Start();
+            }
+            catch (Exception ex)
+            {
+                result = MessageBox.Show(ex.Message, "Couldn't start");
+            }
+
+            if (p.HasExited)
+            {
+                string s = p.StandardError.ReadToEnd();
+                MessageBox.Show(s, "");
+            }
+        }
+
+        private static string RemoveCharactersFromCmd(string cmd)
+        {
+            cmd = cmd.StartsWith("/") ? cmd.Remove(0, 1) : cmd;
+            cmd = cmd.StartsWith("\\") ? cmd.Remove(0, 1) : cmd;
+            cmd = cmd.StartsWith("\"") ? cmd.Remove(0, 1) : cmd;
+            cmd = cmd.EndsWith("\"") ? cmd.Remove(cmd.Length - 1, 1) : cmd;
+            return cmd;
         }
 
         void StartAppOrCommandOrFolder()
