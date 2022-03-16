@@ -34,7 +34,8 @@ namespace WinR
     public partial class MainWindow : Window
     {
         bool highlightInExplorer = false;
-        List<string> list = new List<string>();
+        //List<string> list = new List<string>();
+        List<ItemsWithTooltip> list = new List<ItemsWithTooltip>();
         string shellCmdFile = "shell.txt";
 
         //MainWindow Singleton;
@@ -63,7 +64,8 @@ namespace WinR
             //string systemPath = Path.GetPathRoot(Environment.dir);
             //FileInfo fileInfo = new FileInfo(systemPath);
             string[] s1 = Environment.GetLogicalDrives();
-            List<string> names = new List<string>();
+            //List<string> names = new List<string>();
+            List<ItemsWithTooltip> names = new List<ItemsWithTooltip>();
 
             //System.Windows.Controls.ListView listView = new System.Windows.Controls.ListView();
 
@@ -71,7 +73,9 @@ namespace WinR
             {
                 foreach (string s in Directory.GetFileSystemEntries(item))
                 {
-                    names.Add("/" + s);
+                    //names.Add("/" + s);
+                    //names.Add(new ItemsWithTooltip { Name= "/" + s, ToolTip = "Folder (Opens in File Explorer)" });
+                    names.Add(new ItemsWithTooltip { Name = "/" + s });
                     //listView.Items.Add(s);
                     //list.Add(s);
                 }
@@ -79,7 +83,8 @@ namespace WinR
 
             foreach (string s in Directory.GetDirectories(systemPath))
             {
-                names.Add("\\" + s);
+                //names.Add("\\" + s);
+                names.Add(new ItemsWithTooltip { Name = "/" + s });
                 //listView.Items.Add(s);
                 //list.Add(s);
             }
@@ -87,7 +92,10 @@ namespace WinR
             list.AddRange(names);
 
             ////list.AddRange(AddShellCommandsToList())
-            list.AddRange(GetShellCommands());
+            //list.AddRange(GetShellCommands());
+
+
+            list.AddRange(GetShellCommandsWithTooltip());
 
             //AddShellCmdTo(listView);
 
@@ -104,10 +112,12 @@ namespace WinR
 
             autoSuggestBox.IsTextSearchEnabled = false;
             //addtoSuggestBox.ItemsSource = names;
-            autoSuggestBox.ItemsSource = names;
-            //autoSuggestBox.Items.Add(listView); //= (System.Collections.IEnumerable)listView;
+            //autoSuggestBox.ItemsSource = names;
+            //autoSuggestBox.Items.Add(listView, false); //= (System.Collections.IEnumerable)listView;
 
             //autoSuggestBox.ItemsSource = this;
+
+            //autoSuggestBox.ToolTip = "dd";
 
             WinKeyboardHook.Sub();
             WinKeyboardHook.SetDefaultPosOnCurrentScreen();
@@ -125,6 +135,26 @@ namespace WinR
                 item.Content = lines[i];
                 item.ToolTip = lines[i + 1];
             }
+        }
+
+        private IEnumerable<ItemsWithTooltip> GetShellCommandsWithTooltip()
+        {
+            List<ItemsWithTooltip> list = new List<ItemsWithTooltip>();
+
+            string[] lines = System.IO.File.ReadAllLines(shellCmdFile);
+
+            for (int i = 0; i < lines.Length / 2; i += 2)
+            {
+                string d = lines[i];
+                //if (string.IsNullOrEmpty(d))
+                d = d.StartsWith("“") ? d.Remove(0, 1) : d;
+                d = d.EndsWith("”") ? d.Remove(d.Length - 1, 1) : d;
+                d = d.StartsWith("\"") ? d.Remove(0, 1) : d;
+                d = d.EndsWith("\"") ? d.Remove(d.Length - 1, 1) : d;
+                list.Add(new ItemsWithTooltip { Name = d, ToolTip = lines[i + 1] });
+            }
+
+            return list;
         }
 
         private IEnumerable<string> GetShellCommands()
@@ -160,7 +190,7 @@ namespace WinR
 
         internal static void SetPositionToCurrentWindowOrDefaultPosOnWnd()
         {
-            
+
         }
 
         //public void Tooltip(AutoSuggestBox box)
@@ -176,6 +206,27 @@ namespace WinR
         //    }
         //}
 
+        //public void Tooltip(ItemsControl control)
+        //{
+        //    for (int d = 0; d < control.Items.Count; d++)
+        //    {
+        //        control.Items[d].Attributes.Add("title", control.Items[d].Text);
+        //    }
+        //    ModernWpf.Controls.AutoSuggestBox
+        //    foreach (AutoSuggestBox item in drpID.Items)
+        //    {
+        //        item.Attributes.Add("Title", item.Text);
+        //    }
+        //}
+
+        //public void Tooltip(ModernWpf.Controls.Primitives.AutoSuggestBoxListViewItem lc)
+        //{
+        //    for (int d = 0; d < lc.Items.Count; d++)
+        //    {
+        //        lc.Items[d].Attributes.Add("title", lc.Items[d].Text);
+        //    }
+        //}
+
         private void AutoSuggestBox_TextChanged(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxTextChangedEventArgs args)
         {
             //AutoSuggestBox autoSuggestBox = sender as AutoSuggestBox;
@@ -187,30 +238,183 @@ namespace WinR
             //ModernWpf.Controls.Primitives.AutoSuggestBoxListViewItem autoSuggestBoxListViewItem = (ModernWpf.Controls.Primitives.AutoSuggestBoxListViewItem)sender.Items[0];
             //autoSuggestBoxListViewItem.ToolTip = "test";
 
+            #region
+            //var suitableItems = new List<string>();
+            //var splitText = sender.Text.ToLower().Split(" ");
+            //foreach (var item in list)
+            //{
+            //    var found = splitText.All((key) =>
+            //    {
+            //        return item.ToLower().Contains(key);
+            //    });
+            //    if (found)
+            //    {
+            //        suitableItems.Add(item);
+            //    }
+            //}
+            //if (suitableItems.Count == 0)
+            //{
+            //    suitableItems.Add("No results found");
+            //}
+            //sender.ItemsSource = suitableItems;
+            #endregion
 
-            var suitableItems = new List<string>();
+
+
+            var suitableItems = new List<ItemsWithTooltip>();
+
+            if (sender.Text.Length == 0)
+            {
+                sender.ItemsSource = suitableItems;
+                return;
+            }
+
+            //if (sender.Text.Equals(list.All))
+
+            if (sender.Text.Contains("shell:"))
+            {
+                //sender.IsTextSearchEnabled = false;
+                //Debug.Write(sender.IsTextSearchCaseSensitive);
+                //return;
+                //var found1 = false;
+
+                //foreach (var item in list)
+                //{
+                //    //found1 = sender.Text.All((key) =>
+                //    //{
+                //    //    return item.ToLower().Contains(key);
+                //    //});
+                //    //if (item.Equals(sender.Text))
+                //    //if (item.ToString().Equals(sender.Text))
+                //    //if (item.ToString().Equals("“" + sender.Text + "”"))
+                //    if (item.ToString().Equals(sender.Text))
+                //    {
+                //        found1 = true;
+                //        break;
+                //    }
+                //}
+
+                ////if (sender.Text.Equals(list.All))
+                //if (found1)
+                //{
+                //    return;
+                //}
+
+            }
+
+            /*
+            
+            if (sender.Text.Contains("shell:"))
+            {
+
+                var text = "shell:";
+                foreach (var item in list)
+                {
+                    //var found = text.All((key) =>
+                    //{
+                    //    return item.ToLower().Contains(key);
+                    //});
+                    //if (found)
+                    //{
+                    //    suitableItems.Add(item);
+                    //    //suitableItems.Add(item.ToLower());
+                    //    //suitableItems.Add(new CountryInfo { Name = item});
+                    //    //sender.Items[0].GetType();
+                    //}
+                    if (item.ToString().Contains(text))
+                    {
+                        suitableItems.Add(item);
+                    }
+                }
+                sender.ItemsSource = suitableItems;
+                return;
+            }
+            */
+
+
+
+
+
             var splitText = sender.Text.ToLower().Split(" ");
             foreach (var item in list)
             {
-                var found = splitText.All((key) =>
+                var found = false;
+                if (splitText[0].Equals("shell:"))
                 {
-                    return item.ToLower().Contains(key);
-                });
+                    if (item.Name.Contains("shell"))
+                    {
+                        ;
+                    }
+
+                    //if (splitText[0].Contains(item.Name))
+                    if (item.Name.Contains(splitText[0]))
+                    {
+                        found = true;
+                    }
+                }
+                else if (!splitText[0].Contains("shell:"))
+                {
+                    found = splitText.All((key) =>
+                    {
+                        return item.ToLower().Contains(key);
+                    });
+                    //var found = splitText.Any((key) =>
+                    //{
+                    //    return item.ToLower().Contains(key);
+                    //});
+                }
+                else
+                {
+                    return;
+                }
+
                 if (found)
                 {
                     suitableItems.Add(item);
+                    //suitableItems.Add(item.ToLower());
+                    //suitableItems.Add(new CountryInfo { Name = item});
+                    //sender.Items[0].GetType();
                 }
             }
             if (suitableItems.Count == 0)
             {
-                suitableItems.Add("No results found");
+                //suitableItems.Add("No results found");
+                suitableItems.Add(new ItemsWithTooltip { Name = "No results found" });
+
             }
             sender.ItemsSource = suitableItems;
+
         }
 
         private void AutoSuggestBox_SuggestionChosen(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxSuggestionChosenEventArgs args)
         {
-            
+            //sender.ItemsSource = new List<ItemsWithTooltip>();
+            //sender.IsSuggestionListOpen = true;
+
+            if (sender.ItemsSource != null)
+            {
+                //sender.IsSuggestionListOpen = true;
+                //sender.ToolTip = sender.Items[sender.Items.CurrentPosition];
+                var d = sender.Items.CurrentItem;
+                sender.Items.CurrentChanged += Items_CurrentChanged;
+                //sender.Items.
+                //sender.ToolTip = sender.Items[0];
+                //ModernWpf.Controls.Primitives.AutoSuggestBoxListViewItem item = (ModernWpf.Controls.Primitives.AutoSuggestBoxListViewItem)args.SelectedItem;
+                ItemsWithTooltip item = (ItemsWithTooltip)args.SelectedItem;
+
+                //if (item != null)
+                //{
+
+                //}
+
+                sender.ToolTip = item.ToolTip;
+                Debug.WriteLine("dd" + sender.ToolTip + sender.Items.CurrentPosition + d);
+            }
+        }
+
+        private void Items_CurrentChanged(object? sender, EventArgs e)
+        {
+            //throw new NotImplementedException();
         }
 
         //DateTime lastTime = DateTime.Now;
@@ -434,7 +638,7 @@ namespace WinR
             //info.CreateNoWindow = true;
             //info.WindowStyle = ProcessWindowStyle.Hidden;
 
-            
+
 
             //ExecuteAsAdmin(cmd);
 
@@ -525,6 +729,9 @@ namespace WinR
             cmd = cmd.StartsWith("\\") ? cmd.Remove(0, 1) : cmd;
             cmd = cmd.StartsWith("\"") ? cmd.Remove(0, 1) : cmd;
             cmd = cmd.EndsWith("\"") ? cmd.Remove(cmd.Length - 1, 1) : cmd;
+
+            cmd = cmd.StartsWith("“") ? cmd.Remove(0, 1) : cmd;
+            cmd = cmd.EndsWith("”") ? cmd.Remove(cmd.Length - 1, 1) : cmd;
             return cmd;
         }
 
@@ -543,12 +750,12 @@ namespace WinR
             cmd = cmd.StartsWith("/") ? cmd.Remove(0, 1) : cmd;
             cmd = cmd.StartsWith("\\") ? cmd.Remove(0, 1) : cmd;
             cmd = cmd.StartsWith("\"") ? cmd.Remove(0, 1) : cmd;
-            cmd = cmd.EndsWith("\"") ? cmd.Remove(cmd.Length-1, 1) : cmd;
+            cmd = cmd.EndsWith("\"") ? cmd.Remove(cmd.Length - 1, 1) : cmd;
 
             ExecuteCommand(cmd, asAdmin);
 
             return;
-            
+
             Process p = new Process();
             ProcessStartInfo info = new ProcessStartInfo();
 

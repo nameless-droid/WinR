@@ -50,6 +50,8 @@
             <Setter Property="Height" Value="28" />
             <Setter Property="Margin" Value="5,0,0,0" />
         </Style>-->
+
+
     </Window.Resources>
     <Grid Margin="12">
         <!--<xamlhost:WindowsXamlHost x:Name="autoSuggestBoxHost" InitialTypeName="Windows.UI.Xaml.AutoSuggestBox" ChildChanged="AutoSuggestBoxHost_ChildChanged"></xamlhost:WindowsXamlHost>-->
@@ -84,7 +86,33 @@
         <ui:AutoSuggestBox x:FieldModifier="public" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="autoSuggestBox" PlaceholderText="Search" QueryIcon="Find"
                 TextChanged="AutoSuggestBox_TextChanged"
                 QuerySubmitted="AutoSuggestBox_QuerySubmitted"
-                SuggestionChosen="AutoSuggestBox_SuggestionChosen"/>
+                SuggestionChosen="AutoSuggestBox_SuggestionChosen">
+            <ui:AutoSuggestBox.ItemTemplateSelector>
+                <local:AutoSuggestBoxItemTemplateSelector>
+                    <local:AutoSuggestBoxItemTemplateSelector.DefaultTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" FontWeight="Bold" ToolTip="{Binding ToolTip}" ToolTipService.BetweenShowDelay="0" ToolTipService.InitialShowDelay="0" />
+                        </DataTemplate>
+                    </local:AutoSuggestBoxItemTemplateSelector.DefaultTemplate>
+                    <local:AutoSuggestBoxItemTemplateSelector.AlternateTemplate>
+                        <DataTemplate>
+                            <Border Background="#15D7FF" Padding="4">
+                                <TextBlock Text="{Binding Name}" Foreground="White" />
+                            </Border>
+                        </DataTemplate>
+                    </local:AutoSuggestBoxItemTemplateSelector.AlternateTemplate>
+                </local:AutoSuggestBoxItemTemplateSelector>
+            </ui:AutoSuggestBox.ItemTemplateSelector>
+            <!--<ui:AutoSuggestBox.ItemTemplate>
+                <local:AutoSuggestBoxItemTemplateSelector>
+                    <local:AutoSuggestBoxItemTemplateSelector.DefaultTemplate>
+                        <DataTemplate>
+                            
+                        </DataTemplate>
+                    </local:AutoSuggestBoxItemTemplateSelector.DefaultTemplate>
+                </local:AutoSuggestBoxItemTemplateSelector>
+            </ui:AutoSuggestBox.ItemTemplate>-->
+        </ui:AutoSuggestBox>
         <CheckBox Content="Highlight Files / Folders" Checked="HighlightCheckbox_CheckedUnchecked" Unchecked="HighlightCheckbox_CheckedUnchecked"></CheckBox>
         <!-- Accept or Cancel -->
         <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
