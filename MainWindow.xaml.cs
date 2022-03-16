@@ -24,6 +24,7 @@ using Rectangle = System.Drawing.Rectangle;
 using static DllImports;
 using System.Windows.Interop;
 using System.Windows.Threading;
+using System.Security.Principal;
 
 namespace WinR
 {
@@ -34,6 +35,7 @@ namespace WinR
     {
         bool highlightInExplorer = false;
         List<string> list = new List<string>();
+        string shellCmdFile = "shell.txt";
 
         //MainWindow Singleton;
 
@@ -63,20 +65,31 @@ namespace WinR
             string[] s1 = Environment.GetLogicalDrives();
             List<string> names = new List<string>();
 
+            //System.Windows.Controls.ListView listView = new System.Windows.Controls.ListView();
+
             foreach (var item in s1)
             {
                 foreach (string s in Directory.GetFileSystemEntries(item))
                 {
                     names.Add("/" + s);
+                    //listView.Items.Add(s);
+                    //list.Add(s);
                 }
             }
 
             foreach (string s in Directory.GetDirectories(systemPath))
             {
                 names.Add("\\" + s);
+                //listView.Items.Add(s);
+                //list.Add(s);
             }
 
             list.AddRange(names);
+
+            ////list.AddRange(AddShellCommandsToList())
+            list.AddRange(GetShellCommands());
+
+            //AddShellCmdTo(listView);
 
             //names.Add("WPF rocks");
             //names.Add("WCF rocks");
@@ -90,7 +103,9 @@ namespace WinR
 
 
             autoSuggestBox.IsTextSearchEnabled = false;
+            //addtoSuggestBox.ItemsSource = names;
             autoSuggestBox.ItemsSource = names;
+            //autoSuggestBox.Items.Add(listView); //= (System.Collections.IEnumerable)listView;
 
             //autoSuggestBox.ItemsSource = this;
 
@@ -98,18 +113,80 @@ namespace WinR
             WinKeyboardHook.SetDefaultPosOnCurrentScreen();
         }
 
-        
+        private void AddShellCmdTo(System.Windows.Controls.ListView listView)
+        {
+            //throw new NotImplementedException();
+
+            string[] lines = System.IO.File.ReadAllLines(shellCmdFile);
+
+            for (int i = 0; i < lines.Length / 2; i += 2)
+            {
+                System.Windows.Controls.ListViewItem item = new System.Windows.Controls.ListViewItem();
+                item.Content = lines[i];
+                item.ToolTip = lines[i + 1];
+            }
+        }
+
+        private IEnumerable<string> GetShellCommands()
+        {
+            //throw new NotImplementedException();
+            List<string> list = new List<string>();
+
+            //using (var sw = File.OpenRead(shellCmdFile))
+            //{
+            //    foreach (var item in sw)
+            //    {
+
+            //    }
+            //}
+
+            string[] lines = System.IO.File.ReadAllLines(shellCmdFile);
+
+            // Display the file contents by using a foreach loop.
+            //System.Console.WriteLine("Contents of WriteLines2.txt = ");
+            //foreach (string line in lines)
+            //{
+            //    // Use a tab to indent each line of the file.
+            //    //Console.WriteLine("\t" + line);
+            //}
+
+            for (int i = 0; i < lines.Length / 2; i += 2)
+            {
+                list.Add(lines[i] + ";" + lines[i + 1]);
+            }
+
+            return list;
+        }
 
         internal static void SetPositionToCurrentWindowOrDefaultPosOnWnd()
         {
             
         }
 
+        //public void Tooltip(AutoSuggestBox box)
+        //{
+        //    for (int d = 0; d < box.Items.Count; d++)
+        //    {
+        //        box.Items[d].Attributes.Add("title", box.Items[d].Text);
+        //    }
+        //    ModernWpf.Controls.AutoSuggestBox
+        //    foreach (AutoSuggestBox item in drpID.Items)
+        //    {
+        //        item.Attributes.Add("Title", item.Text);
+        //    }
+        //}
+
         private void AutoSuggestBox_TextChanged(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxTextChangedEventArgs args)
         {
             //AutoSuggestBox autoSuggestBox = sender as AutoSuggestBox;
             //okButton.IsEnabled = autoSuggestBox.Text.Length > 0;
             okButton.IsEnabled = autoSuggestBox.Text.Trim().Length > 0;
+
+            //object d = autoSuggestBox.Items[0] as ModernWpf.Controls.ListViewItem;
+
+            //ModernWpf.Controls.Primitives.AutoSuggestBoxListViewItem autoSuggestBoxListViewItem = (ModernWpf.Controls.Primitives.AutoSuggestBoxListViewItem)sender.Items[0];
+            //autoSuggestBoxListViewItem.ToolTip = "test";
+
 
             var suitableItems = new List<string>();
             var splitText = sender.Text.ToLower().Split(" ");
@@ -139,7 +216,7 @@ namespace WinR
         //DateTime lastTime = DateTime.Now;
         MessageBoxResult result;
 
-        private bool ExecuteCustomCommands(string cmd)
+        private bool ExecuteCustomCommands(string cmd, bool asAdmin)
         {
 
             //((ComboBox)sender).IsDropDownOpen = true;   
@@ -149,11 +226,11 @@ namespace WinR
             //if (string.IsNullOrEmpty(s))
 
 
-            var fileName = "command-history.txt";
-            if (!File.Exists(fileName))
-            {
-                File.Create(fileName);
-            }
+            //var fileName = "command-history.txt";
+            //if (!File.Exists(fileName))
+            //{
+            //    File.Create(fileName);
+            //}
 
             //StreamWriter sw = File.AppendText(fileName);
 
@@ -202,7 +279,7 @@ namespace WinR
                 //s = str[1];
                 if (cmd.Equals(str[0]))
                 {
-                    ExecuteCommand(str[1]);
+                    ExecuteCommand(str[1], asAdmin, customCmd: true);
 
                     #region
                     /*
@@ -312,24 +389,58 @@ namespace WinR
         {
             if (args.ChosenSuggestion == null && autoSuggestBox.Text.Trim().Length > 0)
             {
-                StartAppOrCommandOrFolder();
+                //StartAppOrCommandOrFolder();
+
+                //ConsoleModifiers consoleModifiers = Keyboard.Modifiers;
+                //System.Windows.Input.Keyboard modifiers = Keyboard.Modifiers;
+                var modifiers = Keyboard.Modifiers;
+                bool ctrl = modifiers.ToString().Contains("Control");
+                StartAppOrCommandOrFolder(modifiers.ToString().Contains("Control"));
             }
 
         }
+
+        public static bool RunningAsAdmin =>
+   new WindowsPrincipal(WindowsIdentity.GetCurrent())
+       .IsInRole(WindowsBuiltInRole.Administrator);
 
         //void ExecuteCmdOrStartAppOrFolder()
         /// <summary>
         /// Starts an application, Opens File Explorer Folder, Execute a command like cmd or taskkill /f /im winr.exe
         /// </summary>
-        void ExecuteCommand(string cmd)
+        async void ExecuteCommand(string cmd, bool asAdmin, bool customCmd = false)
         {
+            var fileName = "command-history.txt";
+            if (!File.Exists(fileName))
+            {
+                File.Create(fileName);
+            }
+
+            using (StreamWriter sw = File.AppendText(fileName))
+            {
+                sw.WriteLine(cmd);
+            }
+
             cmd = RemoveCharactersFromCmd(cmd);
 
             Process p = new Process();
             ProcessStartInfo info = new ProcessStartInfo();
             info.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
-            info.UseShellExecute = true;
-            info.Arguments = "/c " + cmd;
+            //info.UseShellExecute = true;
+            //info.Arguments = "/c /a" + cmd;
+            info.Arguments = "/c" + cmd;
+            //info.Arguments = "/k " + cmd;
+
+            //info.CreateNoWindow = true;
+            //info.WindowStyle = ProcessWindowStyle.Hidden;
+
+            
+
+            //ExecuteAsAdmin(cmd);
+
+            //return;
+
+            info.FileName = "cmd";
 
             if (Directory.Exists(cmd) || File.Exists(cmd))
             {
@@ -338,16 +449,37 @@ namespace WinR
             }
             else if (cmd.StartsWith("shell:"))
             {
-                info.Arguments = "/c start " + cmd;
+                Process.Start("explorer", highlightInExplorer ? "/select," + cmd : cmd);
+                return;
+                //info.Arguments = "/c start " + cmd;
+            }
+            else if (!cmd.Contains(" ") && customCmd == false)
+            {
+                info.FileName = cmd;
+                info.Arguments = "";
+                info.CreateNoWindow = false;
+                //info.WorkingDirectory = @"C:\Windows\System32";
+                info.WindowStyle = ProcessWindowStyle.Normal;
             }
 
-            p.StartInfo = info;
-            info.CreateNoWindow = true;
-            info.WindowStyle = ProcessWindowStyle.Hidden;
-            info.FileName = "cmd";
-            p.StartInfo = info;
             info.RedirectStandardError = true;
-            info.UseShellExecute = false;
+
+            p.StartInfo = info;
+
+
+            if (!RunningAsAdmin && asAdmin)
+                info.RedirectStandardError = false;
+
+
+            if (asAdmin)
+            {
+                info.Verb = "runas";
+                info.UseShellExecute = true;
+            }
+
+
+
+            //info.UseShellExecute = false;
 
             try
             {
@@ -358,11 +490,33 @@ namespace WinR
                 result = MessageBox.Show(ex.Message, "Couldn't start");
             }
 
-            if (p.HasExited)
+            //await Task.Delay(500);
+            await Task.Delay(1000);
+            //await Task.Delay(10000);
+
+            try
             {
-                string s = p.StandardError.ReadToEnd();
-                MessageBox.Show(s, "");
+                if (p.HasExited)
+                {
+                    string s = p.StandardError.ReadToEnd();
+                    MessageBox.Show(s, "");
+                }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error1");
+                //throw;
+            }
+
+        }
+
+        public void ExecuteAsAdmin(string fileName)
+        {
+            Process proc = new Process();
+            proc.StartInfo.FileName = fileName;
+            proc.StartInfo.UseShellExecute = true;
+            proc.StartInfo.Verb = "runas";
+            proc.Start();
         }
 
         private static string RemoveCharactersFromCmd(string cmd)
@@ -374,7 +528,7 @@ namespace WinR
             return cmd;
         }
 
-        void StartAppOrCommandOrFolder()
+        void StartAppOrCommandOrFolder(bool asAdmin)
         {
 
 
@@ -383,7 +537,7 @@ namespace WinR
 
             string cmd = autoSuggestBox.Text;
 
-            if (ExecuteCustomCommands(cmd))
+            if (ExecuteCustomCommands(cmd, asAdmin))
                 return;
 
             cmd = cmd.StartsWith("/") ? cmd.Remove(0, 1) : cmd;
@@ -391,6 +545,10 @@ namespace WinR
             cmd = cmd.StartsWith("\"") ? cmd.Remove(0, 1) : cmd;
             cmd = cmd.EndsWith("\"") ? cmd.Remove(cmd.Length-1, 1) : cmd;
 
+            ExecuteCommand(cmd, asAdmin);
+
+            return;
+            
             Process p = new Process();
             ProcessStartInfo info = new ProcessStartInfo();
 
@@ -500,7 +658,7 @@ namespace WinR
 
         private void okButton_Click(object sender, RoutedEventArgs e)
         {
-            StartAppOrCommandOrFolder();
+            StartAppOrCommandOrFolder(Keyboard.Modifiers.ToString().Contains("Control"));
         }
 
         private void HighlightCheckbox_CheckedUnchecked(object sender, RoutedEventArgs e)
@@ -511,11 +669,12 @@ namespace WinR
 
         private void Window_Deactivated(object sender, EventArgs e)
         {
-            this.Hide();
+            //this.Hide(); #todo enable
         }
 
         private void Window_Activated(object sender, EventArgs e)
         {
+            this.Topmost = true; //todo disable
             autoSuggestBox.Focus();
             Keyboard.Focus(autoSuggestBox as AutoSuggestBox);
 

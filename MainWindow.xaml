@@ -8,6 +8,7 @@
         ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
         FocusManager.FocusedElement="{Binding ElementName=autoSuggestBox}"
+        ui:ThemeManager.RequestedTheme="Light"
         Title="MainWindow" Height="213" Width="415" Left="8" Loaded="Window_Loaded" Activated="Window_Activated" ShowActivated="True" ShowInTaskbar="False" Deactivated="Window_Deactivated">
     <Window.Resources>
         <Style x:Key="MyFocusVisual">
@@ -24,8 +25,23 @@
             <Style.Triggers>
                 <Trigger Property="IsDefault" Value="True">
                     <!--<Setter Property="Background" Value="Blue"></Setter>-->
-                    <Setter Property="BorderBrush" Value="Blue"></Setter>
-                    <Setter Property="BorderThickness" Value="1"></Setter>
+                    <!--<Setter Property="BorderBrush" Value="Blue"></Setter>-->
+                    <Setter Property="BorderBrush" Value="RoyalBlue"></Setter>
+                    <!--<Setter Property="BorderBrush" Value="AliceBlue"></Setter>-->
+                    <!--<Setter Property="BorderThickness" Value="1"></Setter>-->
+                    <Setter Property="BorderThickness" Value="1.5"></Setter>
+                    <Setter Property="Padding" Value="0"></Setter>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <!--<Setter Property="Background" Value="Blue"></Setter>-->
+                    <!--<Setter Property="BorderBrush" Value="Blue"></Setter>-->
+                    <Setter Property="BorderBrush" Value="RoyalBlue"></Setter>
+                    <!--<Setter Property="BorderBrush" Value="AliceBlue"></Setter>-->
+                    <!--<Setter Property="BorderThickness" Value="1"></Setter>-->
+                    <Setter Property="BorderThickness" Value="5"></Setter>
+                    <Setter Property="Background" Value="Transparent"></Setter>
+                    <Setter Property="Foreground" Value="Black"></Setter>
+                    <!--<Setter Property="Padding" Value="5"></Setter>-->
                 </Trigger>
             </Style.Triggers>
         </Style>
