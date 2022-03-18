@@ -1,0 +1,1 @@
+explorer bin\Debug\net6.0-windows10.0.20348.0

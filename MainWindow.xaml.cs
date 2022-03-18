@@ -25,6 +25,7 @@ using static DllImports;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using System.Security.Principal;
+using System.Runtime.InteropServices;
 
 namespace WinR
 {
@@ -33,10 +34,28 @@ namespace WinR
     /// </summary>
     public partial class MainWindow : Window
     {
+        static string path;
+
+        public static string ExePath { 
+            get {
+                if (path == null)
+                {
+                    string loc = System.Reflection.Assembly.GetEntryAssembly().Location;
+                    path = Path.GetDirectoryName(loc);
+                }
+                return path; 
+            } 
+        }
+
         bool highlightInExplorer = false;
         //List<string> list = new List<string>();
         List<ItemsWithTooltip> list = new List<ItemsWithTooltip>();
-        string shellCmdFile = "shell.txt";
+
+
+        string shellCmdFile = Path.Combine(ExePath, "shell.txt");
+        string ini = Path.Combine(ExePath, Forms.Application.ProductName + ".ini");
+        string customCmdFile = Path.Combine(ExePath, "custom.txt");
+        string CmdHistoryFile = Path.Combine(ExePath, "command-history.txt");
 
         //MainWindow Singleton;
 
@@ -51,13 +70,62 @@ namespace WinR
         //    }
         //}
 
+        [DllImport("user32.dll")]
+        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        [DllImport("user32.dll")]
+        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        private const int GWL_STYLE = -16;
+        private const int WS_MAXIMIZEBOX = 0x10000; //maximize button
+        private const int WS_MINIMIZEBOX = 0x20000; //minimize button
+
+        private void Window_SourceInitialized(object sender, EventArgs e)
+        {
+
+        }
+
+
+        static void MyHandler(object sender, UnhandledExceptionEventArgs args)
+        {
+
+
+            Exception e = (Exception)args.ExceptionObject;
+
+
+            using (StreamWriter sw = File.AppendText(Path.Combine(ExePath, "error.txt")))
+            {
+                sw.WriteLine(DateTime.Now + " " + e.Message);
+            }
+
+            //RestartApplicationInTheSameLocation();
+        }
+
+
         public MainWindow()
         {
             InitializeComponent();
+            this.SourceInitialized += MainWindow_SourceInitialized; ;
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.UnhandledException += new UnhandledExceptionEventHandler(MyHandler);
+            //path = System.Reflection.Assembly.GetEntryAssembly().Location;
         }
+
+        private void MainWindow_SourceInitialized(object? sender, EventArgs e)
+        {
+            var hwnd = new WindowInteropHelper((Window)sender).Handle;
+            var value = GetWindowLong(hwnd, GWL_STYLE);
+            //SetWindowLong(hwnd, GWL_STYLE, (int)(value & ~WS_MAXIMIZEBOX));
+        }
+
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            if (!File.Exists(ini))
+            {
+                File.Create(ini);
+            }
+            
+
             //autoSuggestBox.DataContext = this;
 
             string systemPath = Path.GetPathRoot(Environment.SystemDirectory);
@@ -458,12 +526,12 @@ namespace WinR
 
             try
             {
-                if (!File.Exists("custom.txt"))
+                if (!File.Exists(customCmdFile))
                 {
-                    File.Create("custom.txt");
+                    File.Create(customCmdFile);
                 }
 
-                lines = System.IO.File.ReadAllLines(@"custom.txt");
+                lines = System.IO.File.ReadAllLines(customCmdFile);
             }
             catch (Exception)
             {
@@ -614,13 +682,13 @@ namespace WinR
         /// </summary>
         async void ExecuteCommand(string cmd, bool asAdmin, bool customCmd = false)
         {
-            var fileName = "command-history.txt";
-            if (!File.Exists(fileName))
+            //var fileName = "command-history.txt";
+            if (!File.Exists(CmdHistoryFile))
             {
-                File.Create(fileName);
+                File.Create(CmdHistoryFile);
             }
 
-            using (StreamWriter sw = File.AppendText(fileName))
+            using (StreamWriter sw = File.AppendText(CmdHistoryFile))
             {
                 sw.WriteLine(cmd);
             }
@@ -646,7 +714,23 @@ namespace WinR
 
             info.FileName = "cmd";
 
-            if (Directory.Exists(cmd) || File.Exists(cmd))
+            //string[] list = { "Pictures", "Desktop", "3D Objects", "Documents", "Music", "Downloads", "Videos" };
+            string[] list = { "pictures", "desktop", "3d objects", "documents", "music", "downloads", "videos" };
+
+            if (list.Contains(cmd.ToLower()))
+            {
+                //Process.Start("explorer", highlightInExplorer ? "/select," + cmd : cmd);
+                //Process.Start("cmd", highlightInExplorer ? "/c explorer /select," + cmd : "cmd /c explorer " + cmd);
+                Process process = new Process();
+                process.StartInfo.FileName = "explorer";
+                process.StartInfo.Arguments = cmd;
+                process.StartInfo.WorkingDirectory = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "Users", Environment.UserName);
+                //process.StartInfo.UseShellExecute = true;
+                //process.StartInfo.RedirectStandardOutput = true;
+                process.Start();
+                return;
+            }
+            else if (Directory.Exists(cmd) || File.Exists(cmd))
             {
                 Process.Start("explorer", highlightInExplorer ? "/select," + cmd : cmd);
                 return;
@@ -665,6 +749,8 @@ namespace WinR
                 //info.WorkingDirectory = @"C:\Windows\System32";
                 info.WindowStyle = ProcessWindowStyle.Normal;
             }
+
+
 
             info.RedirectStandardError = true;
 
@@ -876,12 +962,12 @@ namespace WinR
 
         private void Window_Deactivated(object sender, EventArgs e)
         {
-            //this.Hide(); #todo enable
+            //this.Hide(); //#todo enable
         }
 
         private void Window_Activated(object sender, EventArgs e)
         {
-            this.Topmost = true; //todo disable
+            //this.Topmost = true; //todo disable
             autoSuggestBox.Focus();
             Keyboard.Focus(autoSuggestBox as AutoSuggestBox);
 
@@ -891,6 +977,83 @@ namespace WinR
                 autoSuggestBox.Focus();         // Set Logical Focus
                 Keyboard.Focus(autoSuggestBox); // Set Keyboard Focus
             }));
+        }
+
+        private enum allowedKeys
+        {
+            F1,
+            F2,
+            F3,
+            F4,
+            F5,
+            F6,
+            F7,
+            F8,
+            F9,
+            F10,
+            F11,
+            F12,
+            F13,
+        }
+        
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            bool asAdmin = Keyboard.Modifiers.ToString().Contains("Control");
+
+            //foreach (var item in allowedKeys)
+            //{
+
+            //}
+            //if (e.Key = allowedKeys)
+            //{
+            //    Key.F1
+            //}
+            bool found = false;
+
+            //foreach (Key key in Enum.GetValues(typeof(allowedKeys)))
+            //{
+            //    //Console.WriteLine($" {i}");
+            //    if (key.Equals(e.Key))
+            //    {
+            //        found = true;
+            //    }
+            //}
+
+            foreach (string key in Enum.GetNames(typeof(allowedKeys)))
+            {
+                //Console.WriteLine($" {i}");
+                if (key.Equals(e.Key.ToString()))
+                {
+                    found = true;
+                }
+            }
+
+            if (found)
+            {
+                found = false;
+
+                string[] lines = System.IO.File.ReadAllLines(ini);
+
+                foreach (var item in lines)
+                {
+                    if (item.StartsWith("//"))
+                    {
+                        continue;
+                    }
+
+                    string[] str = item.Split(";");
+
+                    if (e.Key.ToString().Equals(str[0]))
+                    {
+                        ExecuteCommand(str[1], asAdmin);
+
+                        found = true;
+                        break;
+                    }
+                }
+
+            }
         }
 
         //private void AutoSuggestBoxHost_ChildChanged(object sender, EventArgs e)

@@ -5,11 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WinR"
         xmlns:ui="http://schemas.modernwpf.com/2019"
-        ui:WindowHelper.UseModernWindowStyle="True"
+        ui:WindowHelper.UseModernWindowStyle="False"
         mc:Ignorable="d"
         FocusManager.FocusedElement="{Binding ElementName=autoSuggestBox}"
         ui:ThemeManager.RequestedTheme="Light"
-        Title="MainWindow" Height="213" Width="415" Left="8" Loaded="Window_Loaded" Activated="Window_Activated" ShowActivated="True" ShowInTaskbar="False" Deactivated="Window_Deactivated">
+        Title="MainWindow" Height="213" Width="415" Left="8" Loaded="Window_Loaded" Activated="Window_Activated" ShowActivated="True" ShowInTaskbar="true" Deactivated="Window_Deactivated" PreviewKeyDown="Window_PreviewKeyDown">
     <Window.Resources>
         <Style x:Key="MyFocusVisual">
         <Setter Property="Control.Template">
